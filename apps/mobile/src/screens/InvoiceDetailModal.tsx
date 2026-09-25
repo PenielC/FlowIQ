@@ -126,6 +126,22 @@ function InvoiceDetailContent({
             </View>
           </View>
 
+          <View style={styles.lineItemsCard}>
+            {invoice.lineItems.map((li) => (
+              <View key={li.id} style={styles.lineItemRow}>
+                <Text style={styles.lineItemDescription}>{li.description}</Text>
+                <Text style={styles.lineItemAmount}>{formatCurrency(li.amount, invoice.currency)}</Text>
+              </View>
+            ))}
+          </View>
+
+          {invoice.notes && (
+            <View style={styles.notesBlock}>
+              <Text style={styles.detailLabel}>Notes / Terms</Text>
+              <Text style={styles.notesText}>{invoice.notes}</Text>
+            </View>
+          )}
+
           {error && <Text style={styles.error}>{error}</Text>}
 
           {invoice.status !== 'Paid' && (
@@ -191,6 +207,20 @@ const styles = StyleSheet.create({
   detailRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   detailLabel: { color: colors.textMuted, fontSize: 12 },
   detailValue: { color: colors.textPrimary, fontSize: 14, fontWeight: '600', marginTop: 1 },
+  lineItemsCard: {
+    marginTop: 14,
+    backgroundColor: colors.navyCard,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 14,
+    padding: 14,
+    gap: 10,
+  },
+  lineItemRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 10 },
+  lineItemDescription: { flex: 1, color: colors.textPrimary, fontSize: 13 },
+  lineItemAmount: { color: colors.textPrimary, fontSize: 13, fontWeight: '600' },
+  notesBlock: { marginTop: 14 },
+  notesText: { color: colors.textSecondary, fontSize: 13, marginTop: 4 },
   error: { color: colors.negative, fontSize: 13, marginTop: 12 },
   payButton: {
     flexDirection: 'row',

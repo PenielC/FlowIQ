@@ -1,13 +1,15 @@
-using FlowIQ.Domain.Invoicing;
 using Mediator;
 
 namespace FlowIQ.Application.Invoicing.Commands.CreateInvoice;
 
+public record InvoiceLineItemInput(string Description, decimal Amount);
+
 public record CreateInvoiceCommand(
     Guid CompanyId,
     string CustomerName,
-    decimal Amount,
+    IReadOnlyCollection<InvoiceLineItemInput> LineItems,
     DateTime IssueDateUtc,
     DateTime DueDateUtc,
     string Currency,
-    decimal? ExchangeRate) : ICommand<InvoiceResult>;
+    decimal? ExchangeRate,
+    string? Notes) : ICommand<InvoiceResult>;

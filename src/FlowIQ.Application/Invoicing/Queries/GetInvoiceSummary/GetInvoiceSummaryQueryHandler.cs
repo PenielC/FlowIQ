@@ -13,6 +13,8 @@ public class GetInvoiceSummaryQueryHandler(IInvoiceRepository invoiceRepository)
         return new InvoiceSummaryResult(
             summary.TotalOutstanding,
             summary.CustomerCount,
-            upcoming.Select(i => new InvoiceResult(i.Id, i.CustomerName, i.Amount, i.IssueDateUtc, i.DueDateUtc, i.Status, i.Currency, i.AmountInReportingCurrency)).ToList());
+            upcoming.Select(i => new InvoiceResult(
+                i.Id, i.CustomerName, i.Amount, i.IssueDateUtc, i.DueDateUtc, i.Status, i.Currency, i.AmountInReportingCurrency,
+                i.LineItems.Select(li => new InvoiceLineItemResult(li.Id, li.Description, li.Amount)).ToList(), i.Notes)).ToList());
     }
 }

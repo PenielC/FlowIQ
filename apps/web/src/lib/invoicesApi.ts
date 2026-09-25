@@ -23,11 +23,12 @@ export async function fetchInvoices(pageNumber = 1, pageSize = 20) {
 
 export interface CreateInvoiceInput {
   customerName: string
-  amount: number
+  lineItems: { description: string; amount: number }[]
   issueDateUtc: string
   dueDateUtc: string
   currency: string
   exchangeRate?: number
+  notes?: string
 }
 
 export async function createInvoice(input: CreateInvoiceInput) {

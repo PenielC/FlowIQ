@@ -1,9 +1,10 @@
 import { colors } from '@/constants/colors'
 import { useAuth } from '@/lib/AuthContext'
+import { formatCurrency } from '@/lib/categoryDisplay'
 import { currencies } from '@/lib/currencies'
 import { fetchExchangeRate } from '@/lib/exchangeRatesApi'
 import { createInvoice } from '@/lib/invoicesApi'
-import { X } from 'lucide-react-native'
+import { Plus, X } from 'lucide-react-native'
 import { useState } from 'react'
 import {
   ActivityIndicator,
@@ -22,11 +23,19 @@ function toIsoDate(date: Date) {
   return date.toISOString().slice(0, 10)
 }
 
+interface LineItemRow {
+  description: string
+  amount: string
+}
+
+const EMPTY_LINE_ITEM: LineItemRow = { description: '', amount: '' }
+
 export function AddInvoiceModal({ visible, onClose, onCreated }: { visible: boolean; onClose: () => void; onCreated: () => void }) {
   const { user } = useAuth()
   const companyCurrency = user?.companyCurrency ?? 'USD'
   const [customerName, setCustomerName] = useState('')
-  const [amount, setAmount] = useState('')
+  const [lineItems, setLineItems] = useState<LineItemRow[]>([{ ...EMPTY_LINE_ITEM }])
+  const [notes, setNotes] = useState('')
   const [issueDate, setIssueDate] = useState(() => toIsoDate(new Date()))
   const [dueDate, setDueDate] = useState(() => toIsoDate(new Date(Date.now() + 14 * 86400000)))
   const [currency, setCurrency] = useState(companyCurrency)
@@ -35,6 +44,20 @@ export function AddInvoiceModal({ visible, onClose, onCreated }: { visible: bool
   const [isFetchingRate, setIsFetchingRate] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const total = lineItems.reduce((sum, li) => sum + (Number(li.amount) || 0), 0)
+
+  function updateLineItem(index: number, patch: Partial<LineItemRow>) {
+    setLineItems((rows) => rows.map((row, i) => (i === index ? { ...row, ...patch } : row)))
+  }
+
+  function addLineItem() {
+    setLineItems((rows) => [...rows, { ...EMPTY_LINE_ITEM }])
+  }
+
+  function removeLineItem(index: number) {
+    setLineItems((rows) => rows.filter((_, i) => i !== index))
+  }
 
   function handleCurrencyChange(newCurrency: string) {
     setCurrency(newCurrency)
@@ -58,9 +81,18 @@ export function AddInvoiceModal({ visible, onClose, onCreated }: { visible: bool
 
   async function handleSubmit() {
     setError(null)
-    const numericAmount = Number(amount)
-    if (!numericAmount || numericAmount <= 0) {
-      setError('Enter an amount greater than zero.')
+
+    const cleanedLineItems = lineItems
+      .map((li) => ({ description: li.description.trim(), amount: Number(li.amount) }))
+      .filter((li) => li.description.length > 0 || li.amount > 0)
+
+    if (cleanedLineItems.length === 0) {
+      setError('Add at least one line item.')
+      return
+    }
+    const invalidRow = cleanedLineItems.find((li) => !li.description || !li.amount || li.amount <= 0)
+    if (invalidRow) {
+      setError('Every line item needs a description and an amount greater than zero.')
       return
     }
 
@@ -74,14 +106,16 @@ export function AddInvoiceModal({ visible, onClose, onCreated }: { visible: bool
     try {
       await createInvoice({
         customerName,
-        amount: numericAmount,
+        lineItems: cleanedLineItems,
         issueDateUtc: new Date(issueDate).toISOString(),
         dueDateUtc: new Date(dueDate).toISOString(),
         currency,
         exchangeRate: currency === companyCurrency ? undefined : numericRate,
+        notes: notes.trim() || undefined,
       })
       setCustomerName('')
-      setAmount('')
+      setLineItems([{ ...EMPTY_LINE_ITEM }])
+      setNotes('')
       setCurrency(companyCurrency)
       setExchangeRate('')
       onCreated()
@@ -108,14 +142,43 @@ export function AddInvoiceModal({ visible, onClose, onCreated }: { visible: bool
               <Text style={styles.label}>Customer</Text>
               <TextInput style={styles.input} value={customerName} onChangeText={setCustomerName} placeholderTextColor={colors.textMuted} />
 
-              <Text style={styles.label}>Amount</Text>
+              <Text style={styles.label}>Line Items</Text>
+              {lineItems.map((row, i) => (
+                <View key={i} style={styles.lineItemRow}>
+                  <TextInput
+                    style={[styles.input, styles.lineItemDescription]}
+                    value={row.description}
+                    onChangeText={(text) => updateLineItem(i, { description: text })}
+                    placeholder="Description"
+                    placeholderTextColor={colors.textMuted}
+                  />
+                  <TextInput
+                    style={[styles.input, styles.lineItemAmount]}
+                    value={row.amount}
+                    onChangeText={(text) => updateLineItem(i, { amount: text })}
+                    keyboardType="decimal-pad"
+                    placeholder="0.00"
+                    placeholderTextColor={colors.textMuted}
+                  />
+                  <Pressable onPress={() => removeLineItem(i)} disabled={lineItems.length === 1} hitSlop={8}>
+                    <X size={16} color={lineItems.length === 1 ? 'transparent' : colors.textMuted} />
+                  </Pressable>
+                </View>
+              ))}
+              <Pressable style={styles.addLineItemButton} onPress={addLineItem}>
+                <Plus size={14} color={colors.primary} />
+                <Text style={styles.addLineItemText}>Add line item</Text>
+              </Pressable>
+              <Text style={styles.total}>Total: {formatCurrency(total, currency)}</Text>
+
+              <Text style={styles.label}>Notes / Terms</Text>
               <TextInput
-                style={styles.input}
-                value={amount}
-                onChangeText={setAmount}
-                keyboardType="decimal-pad"
-                placeholder="0.00"
+                style={[styles.input, styles.notesInput]}
+                value={notes}
+                onChangeText={setNotes}
+                placeholder="Optional — payment terms, thank-you note, etc."
                 placeholderTextColor={colors.textMuted}
+                multiline
               />
 
               <Text style={styles.label}>Currency</Text>
@@ -185,6 +248,13 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: 15,
   },
+  notesInput: { minHeight: 60, textAlignVertical: 'top' },
+  lineItemRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
+  lineItemDescription: { flex: 1 },
+  lineItemAmount: { width: 90 },
+  addLineItemButton: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
+  addLineItemText: { color: colors.primary, fontSize: 12, fontWeight: '600' },
+  total: { color: colors.textPrimary, fontSize: 13, fontWeight: '700', textAlign: 'right', marginTop: 8 },
   currencyGrid: { flexDirection: 'row', gap: 8 },
   currencyChip: {
     borderRadius: 999,

@@ -60,6 +60,12 @@ export interface CompanyLogoResponse {
   dataUrl: string | null
 }
 
+export interface InvoiceLineItemResponse {
+  id: string
+  description: string
+  amount: number
+}
+
 export interface InvoiceResponse {
   id: string
   customerName: string
@@ -69,6 +75,8 @@ export interface InvoiceResponse {
   status: string
   currency: string
   amountInReportingCurrency: number
+  lineItems: InvoiceLineItemResponse[]
+  notes: string | null
 }
 
 export interface InvoiceSummaryResponse {

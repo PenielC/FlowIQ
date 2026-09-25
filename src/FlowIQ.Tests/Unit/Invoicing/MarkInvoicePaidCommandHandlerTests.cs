@@ -20,7 +20,9 @@ public class MarkInvoicePaidCommandHandlerTests
     public async Task Handle_WithOwnedUnpaidInvoice_MarksItPaid()
     {
         var companyId = Guid.NewGuid();
-        var invoice = new Invoice(companyId, "Global Media", 2800m, DateTime.UtcNow, DateTime.UtcNow.AddDays(10), InvoiceStatus.Sent, "USD", 2800m, 1m);
+        var invoice = new Invoice(
+            companyId, "Global Media", [("Services rendered", 2800m)], DateTime.UtcNow, DateTime.UtcNow.AddDays(10),
+            InvoiceStatus.Sent, "USD", 1m, null);
 
         _invoiceRepository.Setup(r => r.GetByIdAsync(invoice.Id, It.IsAny<CancellationToken>())).ReturnsAsync(invoice);
 
@@ -34,7 +36,9 @@ public class MarkInvoicePaidCommandHandlerTests
     [Fact]
     public async Task Handle_WithInvoiceBelongingToAnotherCompany_ThrowsDomainException()
     {
-        var invoice = new Invoice(Guid.NewGuid(), "Someone Else's Customer", 100m, DateTime.UtcNow, DateTime.UtcNow.AddDays(5), InvoiceStatus.Sent, "USD", 100m, 1m);
+        var invoice = new Invoice(
+            Guid.NewGuid(), "Someone Else's Customer", [("Services rendered", 100m)], DateTime.UtcNow, DateTime.UtcNow.AddDays(5),
+            InvoiceStatus.Sent, "USD", 1m, null);
         _invoiceRepository.Setup(r => r.GetByIdAsync(invoice.Id, It.IsAny<CancellationToken>())).ReturnsAsync(invoice);
 
         var act = () => CreateHandler().Handle(new MarkInvoicePaidCommand(Guid.NewGuid(), invoice.Id), CancellationToken.None).AsTask();

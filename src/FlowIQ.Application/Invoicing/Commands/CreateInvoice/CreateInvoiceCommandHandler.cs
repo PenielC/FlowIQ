@@ -22,24 +22,25 @@ public class CreateInvoiceCommandHandler(
 
         var rate = await CurrencyConversion.ResolveRateAsync(
             exchangeRateProvider, logger, command.Currency, company.Currency, command.ExchangeRate, cancellationToken);
-        var amountInReportingCurrency = command.Amount * rate;
 
         var invoice = new Invoice(
             command.CompanyId,
             command.CustomerName,
-            command.Amount,
+            command.LineItems.Select(li => (li.Description, li.Amount)).ToList(),
             command.IssueDateUtc,
             command.DueDateUtc,
             InvoiceStatus.Sent,
             command.Currency,
-            amountInReportingCurrency,
-            rate);
+            rate,
+            command.Notes);
 
         await invoiceRepository.AddAsync(invoice, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new InvoiceResult(
             invoice.Id, invoice.CustomerName, invoice.Amount, invoice.IssueDateUtc, invoice.DueDateUtc, invoice.Status,
-            invoice.Currency, invoice.AmountInReportingCurrency);
+            invoice.Currency, invoice.AmountInReportingCurrency,
+            invoice.LineItems.Select(li => new InvoiceLineItemResult(li.Id, li.Description, li.Amount)).ToList(),
+            invoice.Notes);
     }
 }

@@ -141,10 +141,12 @@ export function InvoiceDetailModal({
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b border-slate-100">
-                  <td className="py-3 text-slate-700">Services rendered</td>
-                  <td className="py-3 text-right text-slate-700">{formatCurrency(invoice.amount, invoice.currency)}</td>
-                </tr>
+                {invoice.lineItems.map((li) => (
+                  <tr key={li.id} className="border-b border-slate-100">
+                    <td className="py-3 text-slate-700">{li.description}</td>
+                    <td className="py-3 text-right text-slate-700">{formatCurrency(li.amount, invoice.currency)}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
 
@@ -154,6 +156,13 @@ export function InvoiceDetailModal({
                 <p className="text-xl font-bold text-slate-900">{formatCurrency(invoice.amount, invoice.currency)}</p>
               </div>
             </div>
+
+            {invoice.notes && (
+              <div className="mt-6 border-t border-slate-100 pt-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Notes / Terms</p>
+                <p className="mt-1 whitespace-pre-wrap text-sm text-slate-600">{invoice.notes}</p>
+              </div>
+            )}
             </div>
 
             {error && <p className="mt-4 text-sm text-red-500 print:hidden">{error}</p>}

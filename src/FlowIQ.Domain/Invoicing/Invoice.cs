@@ -7,17 +7,25 @@ public class Invoice : BaseAuditableEntity, IAggregateRoot
 {
     private Invoice() { }
 
+    private readonly List<InvoiceLineItem> _lineItems = [];
+
     public Invoice(
         Guid companyId,
         string customerName,
-        decimal amount,
+        IReadOnlyCollection<(string Description, decimal Amount)> lineItems,
         DateTime issueDateUtc,
         DateTime dueDateUtc,
         InvoiceStatus status,
         string currency,
-        decimal amountInReportingCurrency,
-        decimal exchangeRateToReportingCurrency)
+        decimal exchangeRateToReportingCurrency,
+        string? notes)
     {
+        if (lineItems is null || lineItems.Count == 0)
+        {
+            throw new DomainException("Invoice must have at least one line item.");
+        }
+
+        var amount = lineItems.Sum(li => li.Amount);
         if (amount <= 0)
         {
             throw new DomainException("Invoice amount must be greater than zero.");
@@ -46,14 +54,20 @@ public class Invoice : BaseAuditableEntity, IAggregateRoot
         DueDateUtc = dueDateUtc;
         Status = status;
         Currency = currency.ToUpperInvariant();
-        AmountInReportingCurrency = amountInReportingCurrency;
+        AmountInReportingCurrency = amount * exchangeRateToReportingCurrency;
         ExchangeRateToReportingCurrency = exchangeRateToReportingCurrency;
+        Notes = notes;
+
+        foreach (var (description, lineAmount) in lineItems)
+        {
+            _lineItems.Add(new InvoiceLineItem(Id, description, lineAmount));
+        }
     }
 
     public Guid CompanyId { get; private set; }
     public string CustomerName { get; private set; } = string.Empty;
 
-    /// <summary>In this invoice's own <see cref="Currency"/>.</summary>
+    /// <summary>Sum of <see cref="LineItems"/>, in this invoice's own <see cref="Currency"/>.</summary>
     public decimal Amount { get; private set; }
     public DateTime IssueDateUtc { get; private set; }
     public DateTime DueDateUtc { get; private set; }
@@ -70,6 +84,10 @@ public class Invoice : BaseAuditableEntity, IAggregateRoot
 
     /// <summary>The rate used to compute <see cref="AmountInReportingCurrency"/> at creation time.</summary>
     public decimal ExchangeRateToReportingCurrency { get; private set; }
+
+    public IReadOnlyCollection<InvoiceLineItem> LineItems => _lineItems.AsReadOnly();
+
+    public string? Notes { get; private set; }
 
     public void MarkAsPaid()
     {

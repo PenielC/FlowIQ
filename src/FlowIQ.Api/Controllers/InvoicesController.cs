@@ -59,8 +59,10 @@ public class InvoicesController(ISender sender) : ControllerBase
     public async Task<ActionResult<ApiResponse<InvoiceResponse>>> Create(CreateInvoiceRequest request, CancellationToken cancellationToken)
     {
         var command = new CreateInvoiceCommand(
-            CurrentCompanyId, request.CustomerName, request.Amount, request.IssueDateUtc, request.DueDateUtc,
-            request.Currency, request.ExchangeRate);
+            CurrentCompanyId, request.CustomerName,
+            request.LineItems.Select(li => new InvoiceLineItemInput(li.Description, li.Amount)).ToList(),
+            request.IssueDateUtc, request.DueDateUtc,
+            request.Currency, request.ExchangeRate, request.Notes);
         var result = await sender.Send(command, cancellationToken);
 
         return Ok(ApiResponse<InvoiceResponse>.Ok(ToResponse(result)));
@@ -78,5 +80,7 @@ public class InvoicesController(ISender sender) : ControllerBase
 
     private static InvoiceResponse ToResponse(InvoiceResult result) => new(
         result.Id, result.CustomerName, result.Amount, result.IssueDateUtc, result.DueDateUtc, result.Status.ToString(),
-        result.Currency, result.AmountInReportingCurrency);
+        result.Currency, result.AmountInReportingCurrency,
+        result.LineItems.Select(li => new InvoiceLineItemResponse(li.Id, li.Description, li.Amount)).ToList(),
+        result.Notes);
 }

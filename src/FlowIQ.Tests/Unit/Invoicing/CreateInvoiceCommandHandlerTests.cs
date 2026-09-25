@@ -27,13 +27,17 @@ public class CreateInvoiceCommandHandlerTests
     private void SetUpCompany(Company company) =>
         _companyRepository.Setup(r => r.GetByIdAsync(company.Id, It.IsAny<CancellationToken>())).ReturnsAsync(company);
 
+    private static IReadOnlyCollection<InvoiceLineItemInput> SingleItem(decimal amount) =>
+        [new InvoiceLineItemInput("Services rendered", amount)];
+
     [Fact]
     public async Task Handle_WithValidCommand_CreatesInvoiceAsSent()
     {
         var company = new Company("Acme Trading");
         SetUpCompany(company);
         var issueDate = DateTime.UtcNow;
-        var command = new CreateInvoiceCommand(company.Id, "Tech Solutions Ltd", 1500m, issueDate, issueDate.AddDays(14), "USD", null);
+        var command = new CreateInvoiceCommand(
+            company.Id, "Tech Solutions Ltd", SingleItem(1500m), issueDate, issueDate.AddDays(14), "USD", null, null);
 
         var result = await CreateHandler().Handle(command, CancellationToken.None);
 
@@ -46,12 +50,35 @@ public class CreateInvoiceCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_WithMultipleLineItems_SumsThemIntoTheTotal()
+    {
+        var company = new Company("Acme Trading");
+        SetUpCompany(company);
+        var issueDate = DateTime.UtcNow;
+        var lineItems = new List<InvoiceLineItemInput>
+        {
+            new("Design work", 400m),
+            new("Development", 900m),
+            new("Hosting (1 month)", 25m),
+        };
+        var command = new CreateInvoiceCommand(
+            company.Id, "Tech Solutions Ltd", lineItems, issueDate, issueDate.AddDays(14), "USD", null, "Net 14, thanks!");
+
+        var result = await CreateHandler().Handle(command, CancellationToken.None);
+
+        result.Amount.Should().Be(1325m);
+        result.LineItems.Should().HaveCount(3);
+        result.Notes.Should().Be("Net 14, thanks!");
+    }
+
+    [Fact]
     public async Task Handle_WithDueDateBeforeIssueDate_ThrowsDomainException()
     {
         var company = new Company("Acme Trading");
         SetUpCompany(company);
         var issueDate = DateTime.UtcNow;
-        var command = new CreateInvoiceCommand(company.Id, "Bad Invoice", 500m, issueDate, issueDate.AddDays(-1), "USD", null);
+        var command = new CreateInvoiceCommand(
+            company.Id, "Bad Invoice", SingleItem(500m), issueDate, issueDate.AddDays(-1), "USD", null, null);
 
         var act = () => CreateHandler().Handle(command, CancellationToken.None).AsTask();
 
@@ -64,7 +91,8 @@ public class CreateInvoiceCommandHandlerTests
         var company = new Company("Acme Trading"); // USD
         SetUpCompany(company);
         var issueDate = DateTime.UtcNow;
-        var command = new CreateInvoiceCommand(company.Id, "Local Co", 100m, issueDate, issueDate.AddDays(14), "USD", null);
+        var command = new CreateInvoiceCommand(
+            company.Id, "Local Co", SingleItem(100m), issueDate, issueDate.AddDays(14), "USD", null, null);
 
         var result = await CreateHandler().Handle(command, CancellationToken.None);
 
@@ -83,7 +111,8 @@ public class CreateInvoiceCommandHandlerTests
             .Setup(p => p.GetRateAsync("EUR", "USD", It.IsAny<CancellationToken>()))
             .ReturnsAsync(1.1m);
         var issueDate = DateTime.UtcNow;
-        var command = new CreateInvoiceCommand(company.Id, "Export Co", 100m, issueDate, issueDate.AddDays(14), "EUR", null);
+        var command = new CreateInvoiceCommand(
+            company.Id, "Export Co", SingleItem(100m), issueDate, issueDate.AddDays(14), "EUR", null, null);
 
         var result = await CreateHandler().Handle(command, CancellationToken.None);
 
@@ -97,7 +126,8 @@ public class CreateInvoiceCommandHandlerTests
         var company = new Company("Acme Trading"); // USD
         SetUpCompany(company);
         var issueDate = DateTime.UtcNow;
-        var command = new CreateInvoiceCommand(company.Id, "Export Co", 100m, issueDate, issueDate.AddDays(14), "EUR", 1.2m);
+        var command = new CreateInvoiceCommand(
+            company.Id, "Export Co", SingleItem(100m), issueDate, issueDate.AddDays(14), "EUR", 1.2m, null);
 
         var result = await CreateHandler().Handle(command, CancellationToken.None);
 
@@ -115,7 +145,8 @@ public class CreateInvoiceCommandHandlerTests
             .Setup(p => p.GetRateAsync("EUR", "USD", It.IsAny<CancellationToken>()))
             .ReturnsAsync((decimal?)null);
         var issueDate = DateTime.UtcNow;
-        var command = new CreateInvoiceCommand(company.Id, "Export Co", 100m, issueDate, issueDate.AddDays(14), "EUR", null);
+        var command = new CreateInvoiceCommand(
+            company.Id, "Export Co", SingleItem(100m), issueDate, issueDate.AddDays(14), "EUR", null, null);
 
         var result = await CreateHandler().Handle(command, CancellationToken.None);
 

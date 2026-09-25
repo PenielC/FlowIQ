@@ -10,7 +10,9 @@ public class GetInvoicesQueryHandler(IInvoiceRepository invoiceRepository) : IQu
             query.CompanyId, query.PageNumber, query.PageSize, cancellationToken);
 
         var results = items
-            .Select(i => new InvoiceResult(i.Id, i.CustomerName, i.Amount, i.IssueDateUtc, i.DueDateUtc, i.Status, i.Currency, i.AmountInReportingCurrency))
+            .Select(i => new InvoiceResult(
+                i.Id, i.CustomerName, i.Amount, i.IssueDateUtc, i.DueDateUtc, i.Status, i.Currency, i.AmountInReportingCurrency,
+                i.LineItems.Select(li => new InvoiceLineItemResult(li.Id, li.Description, li.Amount)).ToList(), i.Notes))
             .ToList();
 
         return new PagedInvoicesResult(results, query.PageNumber, query.PageSize, totalCount);

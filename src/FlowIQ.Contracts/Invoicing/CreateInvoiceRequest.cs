@@ -1,9 +1,12 @@
 namespace FlowIQ.Contracts.Invoicing;
 
+public record InvoiceLineItemRequest(string Description, decimal Amount);
+
 public record CreateInvoiceRequest(
     string CustomerName,
-    decimal Amount,
+    IReadOnlyCollection<InvoiceLineItemRequest> LineItems,
     DateTime IssueDateUtc,
     DateTime DueDateUtc,
     string Currency,
-    decimal? ExchangeRate);
+    decimal? ExchangeRate,
+    string? Notes);

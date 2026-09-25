@@ -16,6 +16,13 @@ public class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
         builder.Property(i => i.Currency).IsRequired().HasMaxLength(3);
         builder.Property(i => i.AmountInReportingCurrency).HasPrecision(18, 2);
         builder.Property(i => i.ExchangeRateToReportingCurrency).HasPrecision(18, 6);
+        builder.Property(i => i.Notes).HasMaxLength(2000);
+
+        builder.HasMany(i => i.LineItems)
+            .WithOne()
+            .HasForeignKey(li => li.InvoiceId)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.Navigation(i => i.LineItems).AutoInclude();
 
         builder.HasIndex(i => new { i.CompanyId, i.DueDateUtc });
     }
