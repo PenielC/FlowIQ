@@ -38,6 +38,8 @@ public class StripeGateway : IStripeGateway
         string stripeCustomerId, string planLookupKey, string successUrl, string cancelUrl, CancellationToken cancellationToken = default)
     {
         var priceId = await GetOrCreatePriceIdAsync(planLookupKey, cancellationToken);
+        var plan = SubscriptionPlanCatalog.FindByLookupKey(planLookupKey)
+            ?? throw new InvalidOperationException($"No plan configured for lookup key '{planLookupKey}'.");
 
         var service = new SessionService(_client);
         var session = await service.CreateAsync(new SessionCreateOptions
@@ -45,6 +47,9 @@ public class StripeGateway : IStripeGateway
             Customer = stripeCustomerId,
             Mode = "subscription",
             LineItems = [new SessionLineItemOptions { Price = priceId, Quantity = 1 }],
+            SubscriptionData = plan.TrialDays > 0
+                ? new SessionSubscriptionDataOptions { TrialPeriodDays = plan.TrialDays }
+                : null,
             SuccessUrl = successUrl,
             CancelUrl = cancelUrl,
             // This account has Stripe's newer "Managed Payments" feature on by default, which requires

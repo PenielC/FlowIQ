@@ -30,17 +30,17 @@ public class GetSubscriptionStatusQueryHandlerTests
     public async Task Handle_WithSubscription_ReturnsMappedPlanDetails()
     {
         var companyId = Guid.NewGuid();
-        var subscription = new Subscription(companyId, "growth", "cus_1");
+        var subscription = new Subscription(companyId, "standard", "cus_1");
         var periodEnd = new DateTime(2026, 10, 23, 0, 0, 0, DateTimeKind.Utc);
-        subscription.ApplyStripeUpdate("sub_1", "growth", SubscriptionStatus.Active, periodEnd);
+        subscription.ApplyStripeUpdate("sub_1", "standard", SubscriptionStatus.Active, periodEnd);
         _subscriptionRepository.Setup(r => r.GetByCompanyIdAsync(companyId, It.IsAny<CancellationToken>())).ReturnsAsync(subscription);
 
         var result = await CreateHandler().Handle(new GetSubscriptionStatusQuery(companyId), CancellationToken.None);
 
         result.HasSubscription.Should().BeTrue();
-        result.PlanKey.Should().Be("growth");
-        result.PlanDisplayName.Should().Be("Growth");
-        result.MonthlyPriceUsd.Should().Be(79m);
+        result.PlanKey.Should().Be("standard");
+        result.PlanDisplayName.Should().Be("Standard");
+        result.MonthlyPriceUsd.Should().Be(10m);
         result.Status.Should().Be(SubscriptionStatus.Active);
         result.CurrentPeriodEndUtc.Should().Be(periodEnd);
     }

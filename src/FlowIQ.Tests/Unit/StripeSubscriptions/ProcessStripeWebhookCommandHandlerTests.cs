@@ -58,11 +58,11 @@ public class ProcessStripeWebhookCommandHandlerTests
     public async Task Handle_NewEvent_UpdatesMatchingSubscription_StatusPlanAndPeriodEnd()
     {
         var companyId = Guid.NewGuid();
-        var subscription = new Subscription(companyId, "starter", "cus_1");
+        var subscription = new Subscription(companyId, "standard", "cus_1");
         var periodEnd = new DateTime(2026, 10, 23, 0, 0, 0, DateTimeKind.Utc);
 
         _stripeGateway.Setup(g => g.ConstructEvent("body", "sig"))
-            .Returns(new StripeWebhookEvent("evt_3", "customer.subscription.updated", "cus_1", "sub_abc", "flowiq_growth_monthly", SubscriptionStatus.Active, periodEnd));
+            .Returns(new StripeWebhookEvent("evt_3", "customer.subscription.updated", "cus_1", "sub_abc", "flowiq_standard_monthly", SubscriptionStatus.Active, periodEnd));
         _subscriptionRepository.Setup(r => r.HasProcessedEventAsync("evt_3", It.IsAny<CancellationToken>())).ReturnsAsync(false);
         _subscriptionRepository.Setup(r => r.GetByStripeCustomerIdAsync("cus_1", It.IsAny<CancellationToken>())).ReturnsAsync(subscription);
 
@@ -70,7 +70,7 @@ public class ProcessStripeWebhookCommandHandlerTests
 
         result.Processed.Should().BeTrue();
         subscription.StripeSubscriptionId.Should().Be("sub_abc");
-        subscription.PlanKey.Should().Be("growth");
+        subscription.PlanKey.Should().Be("standard");
         subscription.Status.Should().Be(SubscriptionStatus.Active);
         subscription.CurrentPeriodEndUtc.Should().Be(periodEnd);
         _subscriptionRepository.Verify(r => r.Update(subscription), Times.Once);

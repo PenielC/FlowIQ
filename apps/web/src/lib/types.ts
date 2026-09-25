@@ -158,6 +158,7 @@ export interface SubscriptionPlanResponse {
   key: string
   displayName: string
   monthlyPriceUsd: number
+  trialDays: number
   features: string[]
 }
 
@@ -174,6 +175,26 @@ export interface AiInsightsResponse {
 export interface ExchangeRateResponse {
   rate: number | null
   isLive: boolean
+}
+
+export interface TransactionImportRowResponse {
+  rowNumber: number
+  transactionDateUtc: string | null
+  description: string
+  amount: number | null
+  suggestedCategory: string
+  isDuplicate: boolean
+  parseError: string | null
+}
+
+export interface TransactionImportPreviewResponse {
+  rows: TransactionImportRowResponse[]
+  exchangeRate: number
+  importableCount: number
+}
+
+export interface ImportTransactionsResponse {
+  importedCount: number
 }
 
 export interface SubscriptionStatusResponse {

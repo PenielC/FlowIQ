@@ -106,8 +106,18 @@ export function SubscriptionsPage() {
                 </span>
               </div>
               <p className="mt-1 text-sm text-slate-500">
-                ${status.monthlyPriceUsd?.toFixed(2)}/mo
-                {status.currentPeriodEndUtc && ` · renews ${new Date(status.currentPeriodEndUtc).toLocaleDateString()}`}
+                {status.status === 'Trialing' ? (
+                  <>
+                    Free trial
+                    {status.currentPeriodEndUtc && ` · ends ${new Date(status.currentPeriodEndUtc).toLocaleDateString()}`}
+                    {` · then $${status.monthlyPriceUsd?.toFixed(2)}/mo`}
+                  </>
+                ) : (
+                  <>
+                    ${status.monthlyPriceUsd?.toFixed(2)}/mo
+                    {status.currentPeriodEndUtc && ` · renews ${new Date(status.currentPeriodEndUtc).toLocaleDateString()}`}
+                  </>
+                )}
               </p>
             </div>
             {isOwner && (
@@ -126,14 +136,20 @@ export function SubscriptionsPage() {
       )}
 
       {!isLoading && !status?.hasSubscription && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="mx-auto w-full max-w-sm">
           {plans.map((plan) => (
             <div key={plan.key} className="flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
               <h2 className="text-lg font-bold text-slate-900">{plan.displayName}</h2>
+              {plan.trialDays > 0 && (
+                <p className="mt-1 text-sm font-semibold text-emerald-600">
+                  Free for {plan.trialDays} days
+                </p>
+              )}
               <p className="mt-1 text-3xl font-bold text-slate-900">
                 ${plan.monthlyPriceUsd.toFixed(0)}
                 <span className="text-sm font-normal text-slate-500">/mo</span>
               </p>
+              {plan.trialDays > 0 && <p className="mt-1 text-xs text-slate-400">after your free trial, cancel anytime</p>}
               <ul className="mt-4 flex flex-col gap-2 text-sm text-slate-600">
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex items-start gap-2">
@@ -149,7 +165,11 @@ export function SubscriptionsPage() {
                   disabled={pendingPlanKey !== null}
                   className="mt-6 rounded-lg bg-brand-primary px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
                 >
-                  {pendingPlanKey === plan.key ? 'Redirecting…' : `Subscribe to ${plan.displayName}`}
+                  {pendingPlanKey === plan.key
+                    ? 'Redirecting…'
+                    : plan.trialDays > 0
+                      ? 'Start Free Trial'
+                      : `Subscribe to ${plan.displayName}`}
                 </button>
               ) : (
                 <p className="mt-6 flex items-center gap-2 text-xs text-slate-400">

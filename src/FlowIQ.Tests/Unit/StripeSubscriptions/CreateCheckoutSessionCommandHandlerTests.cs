@@ -42,11 +42,11 @@ public class CreateCheckoutSessionCommandHandlerTests
         _stripeGateway.Setup(g => g.GetOrCreateCustomerAsync(companyId, "a@b.com", "Acme", It.IsAny<CancellationToken>()))
             .ReturnsAsync("cus_123");
         _stripeGateway
-            .Setup(g => g.CreateCheckoutSessionAsync("cus_123", "flowiq_starter_monthly", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(g => g.CreateCheckoutSessionAsync("cus_123", "flowiq_standard_monthly", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CheckoutSessionInfo("https://checkout.stripe.com/session123"));
 
         var result = await CreateHandler().Handle(
-            new CreateCheckoutSessionCommand(companyId, "a@b.com", "Acme", "starter"), CancellationToken.None);
+            new CreateCheckoutSessionCommand(companyId, "a@b.com", "Acme", "standard"), CancellationToken.None);
 
         result.CheckoutUrl.Should().Be("https://checkout.stripe.com/session123");
         _subscriptionRepository.Verify(r => r.AddAsync(It.Is<Subscription>(s => s.CompanyId == companyId && s.StripeCustomerId == "cus_123"), It.IsAny<CancellationToken>()), Times.Once);
@@ -57,14 +57,14 @@ public class CreateCheckoutSessionCommandHandlerTests
     public async Task Handle_ExistingSubscription_ReusesStripeCustomerId_DoesNotCreateANewOne()
     {
         var companyId = Guid.NewGuid();
-        var existing = new Subscription(companyId, "starter", "cus_existing");
+        var existing = new Subscription(companyId, "standard", "cus_existing");
         _subscriptionRepository.Setup(r => r.GetByCompanyIdAsync(companyId, It.IsAny<CancellationToken>())).ReturnsAsync(existing);
         _stripeGateway
-            .Setup(g => g.CreateCheckoutSessionAsync("cus_existing", "flowiq_growth_monthly", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(g => g.CreateCheckoutSessionAsync("cus_existing", "flowiq_standard_monthly", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CheckoutSessionInfo("https://checkout.stripe.com/session456"));
 
         var result = await CreateHandler().Handle(
-            new CreateCheckoutSessionCommand(companyId, "a@b.com", "Acme", "growth"), CancellationToken.None);
+            new CreateCheckoutSessionCommand(companyId, "a@b.com", "Acme", "standard"), CancellationToken.None);
 
         result.CheckoutUrl.Should().Be("https://checkout.stripe.com/session456");
         _stripeGateway.Verify(g => g.GetOrCreateCustomerAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -90,7 +90,7 @@ public class CreateCheckoutSessionCommandHandlerTests
             })
             .ReturnsAsync(new CheckoutSessionInfo("https://checkout.stripe.com/x"));
 
-        await CreateHandler().Handle(new CreateCheckoutSessionCommand(companyId, "a@b.com", "Acme", "starter"), CancellationToken.None);
+        await CreateHandler().Handle(new CreateCheckoutSessionCommand(companyId, "a@b.com", "Acme", "standard"), CancellationToken.None);
 
         capturedSuccessUrl.Should().StartWith("http://localhost:5173/subscriptions");
         capturedCancelUrl.Should().StartWith("http://localhost:5173/subscriptions");

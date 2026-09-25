@@ -1,5 +1,6 @@
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus, Upload } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { categoryColor, categoryLabel, formatCurrency, formatDate } from '../../lib/categoryDisplay'
 import { fetchTransactions } from '../../lib/transactionsApi'
 import type { PagedResult, TransactionResponse } from '../../lib/types'
@@ -44,14 +45,23 @@ export function TransactionsPage() {
           <h1 className="text-2xl font-bold text-slate-900">Transactions</h1>
           <p className="text-sm text-slate-500">All income and expenses for your company.</p>
         </div>
-        <button
-          type="button"
-          onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-2 rounded-lg bg-brand-primary px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
-        >
-          <Plus size={16} />
-          Add Transaction
-        </button>
+        <div className="flex items-center gap-2">
+          <Link
+            to="/transactions/import"
+            className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+          >
+            <Upload size={16} />
+            Import CSV
+          </Link>
+          <button
+            type="button"
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center gap-2 rounded-lg bg-brand-primary px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+          >
+            <Plus size={16} />
+            Add Transaction
+          </button>
+        </div>
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">

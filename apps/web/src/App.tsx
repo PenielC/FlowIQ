@@ -12,6 +12,7 @@ import { LandingPage } from './pages/LandingPage'
 import { ReportsPage } from './pages/reports/ReportsPage'
 import { SettingsPage } from './pages/settings/SettingsPage'
 import { SubscriptionsPage } from './pages/subscriptions/SubscriptionsPage'
+import { ImportTransactionsPage } from './pages/transactions/ImportTransactionsPage'
 import { TransactionsPage } from './pages/transactions/TransactionsPage'
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
         <Route element={<AppLayout />}>
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="transactions" element={<TransactionsPage />} />
+          <Route path="transactions/import" element={<ImportTransactionsPage />} />
           <Route path="invoices" element={<InvoicesPage />} />
           <Route path="forecasting" element={<ForecastingPage />} />
           <Route path="customers" element={<CustomersPage />} />

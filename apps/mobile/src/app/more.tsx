@@ -212,7 +212,9 @@ export default function MoreScreen() {
               <View style={styles.memberInfo}>
                 <Text style={styles.memberName}>{subscriptionStatus.planDisplayName} Plan</Text>
                 <Text style={styles.memberEmail}>
-                  {STATUS_LABELS[subscriptionStatus.status ?? ''] ?? subscriptionStatus.status} · ${subscriptionStatus.monthlyPriceUsd?.toFixed(2)}/mo
+                  {subscriptionStatus.status === 'Trialing'
+                    ? `Free trial · then $${subscriptionStatus.monthlyPriceUsd?.toFixed(2)}/mo`
+                    : `${STATUS_LABELS[subscriptionStatus.status ?? ''] ?? subscriptionStatus.status} · $${subscriptionStatus.monthlyPriceUsd?.toFixed(2)}/mo`}
                 </Text>
               </View>
               {isOwner && (
@@ -228,11 +230,15 @@ export default function MoreScreen() {
               <View key={plan.key} style={[styles.memberRow, i === plans.length - 1 && { borderBottomWidth: 0 }]}>
                 <View style={styles.memberInfo}>
                   <Text style={styles.memberName}>{plan.displayName}</Text>
-                  <Text style={styles.memberEmail}>${plan.monthlyPriceUsd.toFixed(0)}/mo</Text>
+                  <Text style={styles.memberEmail}>
+                    {plan.trialDays > 0
+                      ? `Free ${plan.trialDays} days, then $${plan.monthlyPriceUsd.toFixed(0)}/mo`
+                      : `$${plan.monthlyPriceUsd.toFixed(0)}/mo`}
+                  </Text>
                 </View>
                 <Pressable onPress={() => handleSubscribe(plan.key)} style={styles.iconButton} disabled={billingActionKey !== null}>
                   <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '600' }}>
-                    {billingActionKey === plan.key ? 'Opening…' : 'Subscribe'}
+                    {billingActionKey === plan.key ? 'Opening…' : plan.trialDays > 0 ? 'Start Trial' : 'Subscribe'}
                   </Text>
                 </Pressable>
               </View>

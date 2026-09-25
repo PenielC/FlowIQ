@@ -130,6 +130,7 @@ export interface SubscriptionPlanResponse {
   key: string
   displayName: string
   monthlyPriceUsd: number
+  trialDays: number
   features: string[]
 }
 

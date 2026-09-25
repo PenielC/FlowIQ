@@ -23,7 +23,7 @@ public class SubscriptionsController(ISender sender, ILogger<SubscriptionsContro
     {
         var plans = await sender.Send(new GetSubscriptionPlansQuery(), cancellationToken);
 
-        var response = plans.Select(p => new SubscriptionPlanResponse(p.Key, p.DisplayName, p.MonthlyPriceUsd, p.Features)).ToList();
+        var response = plans.Select(p => new SubscriptionPlanResponse(p.Key, p.DisplayName, p.MonthlyPriceUsd, p.TrialDays, p.Features)).ToList();
 
         return Ok(ApiResponse<List<SubscriptionPlanResponse>>.Ok(response));
     }
