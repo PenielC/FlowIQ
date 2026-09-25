@@ -1,0 +1,112 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Keep theme color names non-prefixing (e.g. not "brand-navy" + "brand-navy-light") —
+     Tailwind v4's opacity-modifier utilities (bg-brand-navy/80) silently resolve to
+     transparent when one color name is a strict prefix of another. */
+  --color-brand-primary: #10b981;
+  --color-brand-purple: #7c3aed;
+  --color-brand-navy: #0f172a;
+  --color-brand-navy-soft: #1e293b;
+  --color-brand-teal: #06b6d4;
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  --animate-blob: blob 12s ease-in-out infinite;
+  --animate-fade-in-up: fade-in-up 0.6s ease-out both;
+  --animate-fade-in: fade-in 0.5s ease-out both;
+  --animate-float: float 5s ease-in-out infinite;
+  --animate-rise: rise 8s ease-in-out infinite;
+}
+
+@keyframes blob {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(40px, -60px) scale(1.15);
+  }
+  66% {
+    transform: translate(-30px, 30px) scale(0.9);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-18px) rotate(8deg);
+  }
+}
+
+@keyframes rise {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(var(--rise-distance, -380px)) rotate(18deg);
+    opacity: 0;
+  }
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 font-sans antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Isolate a single element for printing (e.g. the invoice document inside its modal) —
+   hides everything else on the page (sidebar, dimmed backdrop, list behind the modal). */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .invoice-print-area,
+  .invoice-print-area * {
+    visibility: visible;
+  }
+  .invoice-print-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+}

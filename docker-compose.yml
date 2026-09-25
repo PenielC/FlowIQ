@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: flowiq-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: flowiq_dev
+    ports:
+      # Host port 5433 (not the default 5432) to avoid colliding with other
+      # local projects' Postgres containers. Override with a .env file if needed.
+      - '${POSTGRES_PORT:-5433}:5432'
+    volumes:
+      - flowiq_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: flowiq-redis
+    restart: unless-stopped
+    ports:
+      - '${REDIS_PORT:-6380}:6379'
+    volumes:
+      - flowiq_redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  flowiq_postgres_data:
+  flowiq_redis_data:

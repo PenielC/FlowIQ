@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/FlowIQ.Api/FlowIQ.Api.csproj" />
+    <Project Path="src/FlowIQ.Application/FlowIQ.Application.csproj" />
+    <Project Path="src/FlowIQ.Contracts/FlowIQ.Contracts.csproj" />
+    <Project Path="src/FlowIQ.Domain/FlowIQ.Domain.csproj" />
+    <Project Path="src/FlowIQ.Infrastructure/FlowIQ.Infrastructure.csproj" />
+    <Project Path="src/FlowIQ.Tests/FlowIQ.Tests.csproj" />
+  </Folder>
+</Solution>
