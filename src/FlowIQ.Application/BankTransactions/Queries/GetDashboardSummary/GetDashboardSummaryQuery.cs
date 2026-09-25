@@ -2,7 +2,8 @@ using Mediator;
 
 namespace FlowIQ.Application.BankTransactions.Queries.GetDashboardSummary;
 
-public record GetDashboardSummaryQuery(Guid CompanyId) : IQuery<DashboardSummaryResult>;
+public record GetDashboardSummaryQuery(Guid CompanyId, DateTime? StartDateUtc = null, DateTime? EndDateUtc = null)
+    : IQuery<DashboardSummaryResult>;
 
 public record DashboardSummaryResult(
     decimal CashBalance,

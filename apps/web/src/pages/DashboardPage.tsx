@@ -9,7 +9,7 @@ import { fetchDashboardSummary } from '../lib/transactionsApi'
 import type { CashFlowPointResponse, DashboardSummaryResponse, InsightResponse, InvoiceSummaryResponse } from '../lib/types'
 import { AiCtaBanner } from './dashboard/AiCtaBanner'
 import { AiInsightsCard } from './dashboard/AiInsightsCard'
-import { DashboardHeader } from './dashboard/DashboardHeader'
+import { DashboardHeader, getThisMonthRange, type DateRangeValue } from './dashboard/DashboardHeader'
 import { ForecastChart } from './dashboard/ForecastChart'
 import { RecentTransactionsCard } from './dashboard/RecentTransactionsCard'
 import { StatCard } from './dashboard/StatCard'
@@ -23,6 +23,7 @@ function formatDelta(percent: number | null): { value: string; positive: boolean
 export function DashboardPage() {
   const { user } = useAuth()
   const currency = user?.companyCurrency ?? 'USD'
+  const [dateRange, setDateRange] = useState<DateRangeValue>(getThisMonthRange)
   const [summary, setSummary] = useState<DashboardSummaryResponse | null>(null)
   const [invoiceSummary, setInvoiceSummary] = useState<InvoiceSummaryResponse | null>(null)
   const [forecastPoints, setForecastPoints] = useState<CashFlowPointResponse[]>([])
@@ -33,11 +34,18 @@ export function DashboardPage() {
   const [isInsightsLoading, setIsInsightsLoading] = useState(true)
 
   useEffect(() => {
-    fetchDashboardSummary()
+    fetchDashboardSummary(dateRange.startDateUtc, dateRange.endDateUtc)
       .then(setSummary)
       .catch(() => setSummary(null))
       .finally(() => setIsLoading(false))
+  }, [dateRange])
 
+  function handleDateRangeChange(range: DateRangeValue) {
+    setIsLoading(true)
+    setDateRange(range)
+  }
+
+  useEffect(() => {
     fetchInvoiceSummary()
       .then(setInvoiceSummary)
       .catch(() => setInvoiceSummary(null))
@@ -56,7 +64,7 @@ export function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <DashboardHeader />
+      <DashboardHeader value={dateRange} onChange={handleDateRangeChange} />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard

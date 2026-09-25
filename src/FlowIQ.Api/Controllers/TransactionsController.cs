@@ -34,9 +34,10 @@ public class TransactionsController(ISender sender) : ControllerBase
     }
 
     [HttpGet("summary")]
-    public async Task<ActionResult<ApiResponse<DashboardSummaryResponse>>> GetSummary(CancellationToken cancellationToken)
+    public async Task<ActionResult<ApiResponse<DashboardSummaryResponse>>> GetSummary(
+        [FromQuery] DateTime? startDateUtc, [FromQuery] DateTime? endDateUtc, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new GetDashboardSummaryQuery(CurrentCompanyId), cancellationToken);
+        var result = await sender.Send(new GetDashboardSummaryQuery(CurrentCompanyId, startDateUtc, endDateUtc), cancellationToken);
 
         var response = new DashboardSummaryResponse(
             result.CashBalance,

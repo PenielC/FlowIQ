@@ -33,8 +33,10 @@ public class ReportsController(ISender sender) : ControllerBase
     public async Task<IActionResult> ExportTransactions(
         [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate, CancellationToken cancellationToken = default)
     {
-        var end = (endDate ?? DateTime.UtcNow).Date.AddDays(1);
-        var start = (startDate ?? end.AddMonths(-3)).Date;
+        // Query-string-bound DateTimes come in as Kind=Unspecified — Npgsql requires UTC-kind values
+        // for a timestamptz column, so this must be stamped explicitly when an explicit date is provided.
+        var end = DateTime.SpecifyKind((endDate ?? DateTime.UtcNow).Date.AddDays(1), DateTimeKind.Utc);
+        var start = DateTime.SpecifyKind((startDate ?? end.AddMonths(-3)).Date, DateTimeKind.Utc);
 
         var transactions = await sender.Send(new GetTransactionsForExportQuery(CurrentCompanyId, start, end), cancellationToken);
 

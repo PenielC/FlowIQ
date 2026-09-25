@@ -1,8 +1,10 @@
 import { api } from './api'
 import type { ApiResponse, DashboardSummaryResponse, PagedResult, TransactionResponse } from './types'
 
-export async function fetchDashboardSummary() {
-  const res = await api.get<ApiResponse<DashboardSummaryResponse>>('/api/transactions/summary')
+export async function fetchDashboardSummary(startDateUtc?: string, endDateUtc?: string) {
+  const res = await api.get<ApiResponse<DashboardSummaryResponse>>('/api/transactions/summary', {
+    params: startDateUtc && endDateUtc ? { startDateUtc, endDateUtc } : undefined,
+  })
   if (!res.data.data) throw new Error(res.data.message ?? 'Failed to load dashboard summary')
   return res.data.data
 }

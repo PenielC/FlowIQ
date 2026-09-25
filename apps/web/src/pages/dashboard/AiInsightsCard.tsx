@@ -9,7 +9,7 @@ const toneStyles: Record<string, { bg: string; color: string; icon: typeof Trend
 
 export function AiInsightsCard({ insights, isLoading }: { insights: InsightResponse[]; isLoading: boolean }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div id="ai-insights-card" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow duration-700 ease-out">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="flex items-center gap-2 text-base font-semibold text-slate-900">
           <Sparkles size={16} className="text-brand-purple" />
