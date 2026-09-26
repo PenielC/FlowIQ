@@ -1,9 +1,11 @@
 import { Route, Routes } from 'react-router-dom'
+import { AdminRoute } from './components/AdminRoute'
 import { AppLayout } from './components/AppLayout'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { AcceptInvitationPage } from './pages/auth/AcceptInvitationPage'
 import { LoginPage } from './pages/auth/LoginPage'
 import { RegisterPage } from './pages/auth/RegisterPage'
+import { AdminPage } from './pages/admin/AdminPage'
 import { CustomersPage } from './pages/customers/CustomersPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { ForecastingPage } from './pages/forecasting/ForecastingPage'
@@ -34,6 +36,9 @@ function App() {
           <Route path="subscriptions" element={<SubscriptionsPage />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="settings" element={<SettingsPage />} />
+          <Route element={<AdminRoute />}>
+            <Route path="admin" element={<AdminPage />} />
+          </Route>
         </Route>
       </Route>
     </Routes>

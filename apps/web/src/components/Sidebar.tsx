@@ -1,3 +1,4 @@
+import type { LucideIcon } from 'lucide-react'
 import {
   Bookmark,
   FileText,
@@ -7,6 +8,7 @@ import {
   ListChecks,
   Receipt,
   Settings,
+  Shield,
   Users,
 } from 'lucide-react'
 import { ChevronDown } from 'lucide-react'
@@ -14,7 +16,9 @@ import { NavLink } from 'react-router-dom'
 import { useAuth } from '../lib/AuthContext'
 import { Logo } from './Logo'
 
-const navItems = [
+type NavItem = { to: string; label: string; icon: LucideIcon; end?: boolean }
+
+const navItems: NavItem[] = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/transactions', label: 'Transactions', icon: ListChecks },
   { to: '/invoices', label: 'Invoices', icon: FileText },
@@ -25,15 +29,18 @@ const navItems = [
   { to: '/settings', label: 'Settings', icon: Settings },
 ]
 
+const adminNavItem: NavItem = { to: '/admin', label: 'Admin', icon: Shield }
+
 export function Sidebar() {
   const { user } = useAuth()
+  const items = user?.isPlatformAdmin ? [...navItems, adminNavItem] : navItems
 
   return (
     <aside className="flex w-64 shrink-0 flex-col justify-between bg-gradient-to-b from-slate-900 to-brand-navy px-4 py-6">
       <div>
         <Logo className="mb-8 ml-2" />
         <nav className="flex flex-col gap-1">
-          {navItems.map((item) => (
+          {items.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}

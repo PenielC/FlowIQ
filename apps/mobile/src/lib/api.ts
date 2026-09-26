@@ -6,6 +6,7 @@ export const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:5112',
   headers: {
     'Content-Type': 'application/json',
+    'X-Client-Platform': 'mobile',
   },
 })
 
@@ -26,6 +27,7 @@ async function refreshAccessToken(): Promise<string | null> {
   const response = await axios.post<ApiResponse<AuthResponse>>(
     `${api.defaults.baseURL}/api/auth/refresh`,
     { refreshToken },
+    { headers: { 'X-Client-Platform': 'mobile' } },
   )
 
   const auth = response.data.data

@@ -42,6 +42,7 @@ public static class DependencyInjection
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddSingleton<IAppUrlProvider, AppUrlProvider>();
+        services.AddSingleton<IPlatformAdminChecker, PlatformAdminChecker>();
         services.AddScoped<IStripeGateway, StripeGateway>();
 
         services.AddHttpClient<IExchangeRateProvider, FrankfurterExchangeRateProvider>(client =>

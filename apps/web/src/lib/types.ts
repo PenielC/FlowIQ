@@ -7,6 +7,39 @@ export interface UserResponse {
   companyId: string
   companyName: string
   companyCurrency: string
+  isPlatformAdmin: boolean
+}
+
+export interface AdminCompanyRowResponse {
+  id: string
+  name: string
+  currency: string
+  createdAtUtc: string
+  ownerName: string | null
+  ownerEmail: string | null
+  subscriptionStatus: string
+  planKey: string | null
+  isActive: boolean
+}
+
+export interface AdminMonthlyTrendPointResponse {
+  year: number
+  month: number
+  newCompanies: number
+  newSubscriptions: number
+}
+
+export interface AdminOverviewResponse {
+  totalCompanies: number
+  newCompaniesThisMonth: number
+  totalSubscriptions: number
+  newSubscriptionsThisMonth: number
+  usageByPlatform: Record<string, number>
+  statusCounts: Record<string, number>
+  companies: PagedResult<AdminCompanyRowResponse>
+  reportYear: number
+  reportMonth: number
+  monthlyTrend: AdminMonthlyTrendPointResponse[]
 }
 
 export interface AuthResponse {

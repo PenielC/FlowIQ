@@ -11,6 +11,7 @@ public class RefreshTokenCommandHandler(
     IRepository<Company> companyRepository,
     IRefreshTokenRepository refreshTokenRepository,
     IJwtTokenGenerator jwtTokenGenerator,
+    IPlatformAdminChecker platformAdminChecker,
     IUnitOfWork unitOfWork) : ICommandHandler<RefreshTokenCommand, AuthResult>
 {
     public async ValueTask<AuthResult> Handle(RefreshTokenCommand command, CancellationToken cancellationToken)
@@ -27,12 +28,17 @@ public class RefreshTokenCommandHandler(
         var company = await companyRepository.GetByIdAsync(user.CompanyId, cancellationToken)
             ?? throw new DomainException("Company not found for this user.");
 
+        if (!company.IsActive)
+        {
+            throw new DomainException("This company account has been deactivated. Contact support.");
+        }
+
         existingToken.Revoke();
         refreshTokenRepository.Update(existingToken);
 
         var (accessToken, expiresAtUtc) = jwtTokenGenerator.GenerateAccessToken(user);
         var newRefreshTokenValue = jwtTokenGenerator.GenerateRefreshToken();
-        var newRefreshToken = new DomainRefreshToken(user.Id, newRefreshTokenValue, DateTime.UtcNow.Add(jwtTokenGenerator.RefreshTokenLifetime));
+        var newRefreshToken = new DomainRefreshToken(user.Id, newRefreshTokenValue, DateTime.UtcNow.Add(jwtTokenGenerator.RefreshTokenLifetime), command.Platform);
         await refreshTokenRepository.AddAsync(newRefreshToken, cancellationToken);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -48,6 +54,7 @@ public class RefreshTokenCommandHandler(
             user.Role,
             company.Id,
             company.Name,
-            company.Currency);
+            company.Currency,
+            platformAdminChecker.IsPlatformAdmin(user.Email));
     }
 }

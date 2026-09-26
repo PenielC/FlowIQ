@@ -7,7 +7,8 @@ namespace FlowIQ.Application.Authentication.Queries.GetCurrentUser;
 
 public class GetCurrentUserQueryHandler(
     IUserRepository userRepository,
-    IRepository<Company> companyRepository) : IQueryHandler<GetCurrentUserQuery, CurrentUserResult>
+    IRepository<Company> companyRepository,
+    IPlatformAdminChecker platformAdminChecker) : IQueryHandler<GetCurrentUserQuery, CurrentUserResult>
 {
     public async ValueTask<CurrentUserResult> Handle(GetCurrentUserQuery query, CancellationToken cancellationToken)
     {
@@ -25,6 +26,7 @@ public class GetCurrentUserQueryHandler(
             user.Role.ToString(),
             company.Id,
             company.Name,
-            company.Currency);
+            company.Currency,
+            platformAdminChecker.IsPlatformAdmin(user.Email));
     }
 }

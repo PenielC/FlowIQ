@@ -6,6 +6,7 @@ export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:5112',
   headers: {
     'Content-Type': 'application/json',
+    'X-Client-Platform': 'web',
   },
 })
 
@@ -26,6 +27,7 @@ async function refreshAccessToken(): Promise<string | null> {
   const response = await axios.post<ApiResponse<AuthResponse>>(
     `${api.defaults.baseURL}/api/auth/refresh`,
     { refreshToken },
+    { headers: { 'X-Client-Platform': 'web' } },
   )
 
   const auth = response.data.data

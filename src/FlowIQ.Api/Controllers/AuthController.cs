@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using FlowIQ.Api.Common;
 using FlowIQ.Application.Authentication;
 using FlowIQ.Application.Authentication.Commands.Login;
 using FlowIQ.Application.Authentication.Commands.RefreshToken;
@@ -20,7 +21,8 @@ public class AuthController(ISender sender) : ControllerBase
     public async Task<ActionResult<ApiResponse<AuthResponse>>> Register(RegisterRequest request, CancellationToken cancellationToken)
     {
         var result = await sender.Send(
-            new RegisterCommand(request.CompanyName, request.FirstName, request.LastName, request.Email, request.Password),
+            new RegisterCommand(
+                request.CompanyName, request.FirstName, request.LastName, request.Email, request.Password, ClientPlatform.Read(Request)),
             cancellationToken);
 
         return Ok(ApiResponse<AuthResponse>.Ok(ToResponse(result)));
@@ -29,7 +31,7 @@ public class AuthController(ISender sender) : ControllerBase
     [HttpPost("login")]
     public async Task<ActionResult<ApiResponse<AuthResponse>>> Login(LoginRequest request, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new LoginCommand(request.Email, request.Password), cancellationToken);
+        var result = await sender.Send(new LoginCommand(request.Email, request.Password, ClientPlatform.Read(Request)), cancellationToken);
 
         return Ok(ApiResponse<AuthResponse>.Ok(ToResponse(result)));
     }
@@ -37,7 +39,7 @@ public class AuthController(ISender sender) : ControllerBase
     [HttpPost("refresh")]
     public async Task<ActionResult<ApiResponse<AuthResponse>>> Refresh(RefreshTokenRequest request, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new RefreshTokenCommand(request.RefreshToken), cancellationToken);
+        var result = await sender.Send(new RefreshTokenCommand(request.RefreshToken, ClientPlatform.Read(Request)), cancellationToken);
 
         return Ok(ApiResponse<AuthResponse>.Ok(ToResponse(result)));
     }
@@ -50,7 +52,8 @@ public class AuthController(ISender sender) : ControllerBase
         var result = await sender.Send(new GetCurrentUserQuery(userId), cancellationToken);
 
         return Ok(ApiResponse<UserResponse>.Ok(new UserResponse(
-            result.UserId, result.Email, result.FirstName, result.LastName, result.Role, result.CompanyId, result.CompanyName, result.CompanyCurrency)));
+            result.UserId, result.Email, result.FirstName, result.LastName, result.Role, result.CompanyId, result.CompanyName, result.CompanyCurrency,
+            result.IsPlatformAdmin)));
     }
 
     private static AuthResponse ToResponse(AuthResult result) => new(
@@ -58,5 +61,6 @@ public class AuthController(ISender sender) : ControllerBase
         result.AccessTokenExpiresAtUtc,
         result.RefreshToken,
         new UserResponse(
-            result.UserId, result.Email, result.FirstName, result.LastName, result.Role.ToString(), result.CompanyId, result.CompanyName, result.CompanyCurrency));
+            result.UserId, result.Email, result.FirstName, result.LastName, result.Role.ToString(), result.CompanyId, result.CompanyName, result.CompanyCurrency,
+            result.IsPlatformAdmin));
 }

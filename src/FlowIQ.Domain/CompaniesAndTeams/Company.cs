@@ -17,6 +17,17 @@ public class Company : BaseAuditableEntity, IAggregateRoot
     public byte[]? LogoData { get; private set; }
     public string? LogoContentType { get; private set; }
     public string Currency { get; private set; } = "USD";
+    public bool IsActive { get; private set; } = true;
+
+    public void Rename(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new DomainException("Company name is required.");
+        }
+
+        Name = name;
+    }
 
     public void SetCurrency(string currency)
     {
@@ -27,6 +38,10 @@ public class Company : BaseAuditableEntity, IAggregateRoot
 
         Currency = currency.ToUpperInvariant();
     }
+
+    public void Activate() => IsActive = true;
+
+    public void Deactivate() => IsActive = false;
 
     public void SetLogo(byte[] data, string contentType)
     {

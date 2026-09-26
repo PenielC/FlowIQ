@@ -12,4 +12,5 @@ public record CurrentUserResult(
     string Role,
     Guid CompanyId,
     string CompanyName,
-    string CompanyCurrency);
+    string CompanyCurrency,
+    bool IsPlatformAdmin);

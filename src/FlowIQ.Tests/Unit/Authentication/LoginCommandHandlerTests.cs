@@ -17,6 +17,7 @@ public class LoginCommandHandlerTests
     private readonly Mock<IRefreshTokenRepository> _refreshTokenRepository = new();
     private readonly Mock<IPasswordHasher> _passwordHasher = new();
     private readonly Mock<IJwtTokenGenerator> _jwtTokenGenerator = new();
+    private readonly Mock<IPlatformAdminChecker> _platformAdminChecker = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
 
     private LoginCommandHandler CreateHandler() => new(
@@ -25,6 +26,7 @@ public class LoginCommandHandlerTests
         _refreshTokenRepository.Object,
         _passwordHasher.Object,
         _jwtTokenGenerator.Object,
+        _platformAdminChecker.Object,
         _unitOfWork.Object);
 
     private static User CreateUser(Guid companyId) =>
@@ -75,5 +77,50 @@ public class LoginCommandHandlerTests
         var act = () => CreateHandler().Handle(new LoginCommand("john@acme.com", "WrongPassword"), CancellationToken.None).AsTask();
 
         await act.Should().ThrowAsync<DomainException>();
+    }
+
+    [Fact]
+    public async Task Handle_WithDeactivatedCompany_ThrowsDomainException()
+    {
+        var company = new Company("Acme Trading Co.");
+        company.Deactivate();
+        var user = CreateUser(company.Id);
+
+        _userRepository.Setup(r => r.GetByEmailAsync("john@acme.com", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+        _passwordHasher.Setup(h => h.Verify("Password123!", "hashed-password")).Returns(true);
+        _companyRepository.Setup(r => r.GetByIdAsync(company.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(company);
+
+        var act = () => CreateHandler().Handle(new LoginCommand("john@acme.com", "Password123!"), CancellationToken.None).AsTask();
+
+        await act.Should().ThrowAsync<DomainException>();
+    }
+
+    [Fact]
+    public async Task Handle_WithPlatform_CreatesRefreshTokenCarryingThatPlatform()
+    {
+        var company = new Company("Acme Trading Co.");
+        var user = CreateUser(company.Id);
+
+        _userRepository.Setup(r => r.GetByEmailAsync("john@acme.com", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+        _passwordHasher.Setup(h => h.Verify("Password123!", "hashed-password")).Returns(true);
+        _companyRepository.Setup(r => r.GetByIdAsync(company.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(company);
+        _jwtTokenGenerator.Setup(j => j.GenerateAccessToken(user)).Returns(("access-token", DateTime.UtcNow.AddHours(1)));
+        _jwtTokenGenerator.Setup(j => j.GenerateRefreshToken()).Returns("refresh-token");
+        _jwtTokenGenerator.Setup(j => j.RefreshTokenLifetime).Returns(TimeSpan.FromDays(7));
+
+        RefreshToken? capturedToken = null;
+        _refreshTokenRepository
+            .Setup(r => r.AddAsync(It.IsAny<RefreshToken>(), It.IsAny<CancellationToken>()))
+            .Callback<RefreshToken, CancellationToken>((token, _) => capturedToken = token)
+            .Returns(Task.CompletedTask);
+
+        await CreateHandler().Handle(new LoginCommand("john@acme.com", "Password123!", "mobile"), CancellationToken.None);
+
+        capturedToken.Should().NotBeNull();
+        capturedToken!.Platform.Should().Be("mobile");
     }
 }

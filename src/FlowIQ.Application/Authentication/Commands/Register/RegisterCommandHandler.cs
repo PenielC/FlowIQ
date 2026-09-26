@@ -13,6 +13,7 @@ public class RegisterCommandHandler(
     IRefreshTokenRepository refreshTokenRepository,
     IPasswordHasher passwordHasher,
     IJwtTokenGenerator jwtTokenGenerator,
+    IPlatformAdminChecker platformAdminChecker,
     IUnitOfWork unitOfWork) : ICommandHandler<RegisterCommand, AuthResult>
 {
     public async ValueTask<AuthResult> Handle(RegisterCommand command, CancellationToken cancellationToken)
@@ -31,7 +32,7 @@ public class RegisterCommandHandler(
 
         var (accessToken, expiresAtUtc) = jwtTokenGenerator.GenerateAccessToken(user);
         var refreshTokenValue = jwtTokenGenerator.GenerateRefreshToken();
-        var refreshToken = new DomainRefreshToken(user.Id, refreshTokenValue, DateTime.UtcNow.Add(jwtTokenGenerator.RefreshTokenLifetime));
+        var refreshToken = new DomainRefreshToken(user.Id, refreshTokenValue, DateTime.UtcNow.Add(jwtTokenGenerator.RefreshTokenLifetime), command.Platform);
         await refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -47,6 +48,7 @@ public class RegisterCommandHandler(
             user.Role,
             company.Id,
             company.Name,
-            company.Currency);
+            company.Currency,
+            platformAdminChecker.IsPlatformAdmin(user.Email));
     }
 }

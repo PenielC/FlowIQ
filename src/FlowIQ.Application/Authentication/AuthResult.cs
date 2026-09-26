@@ -13,4 +13,5 @@ public record AuthResult(
     UserRole Role,
     Guid CompanyId,
     string CompanyName,
-    string CompanyCurrency);
+    string CompanyCurrency,
+    bool IsPlatformAdmin);

@@ -15,6 +15,7 @@ public class AcceptInvitationCommandHandler(
     IRefreshTokenRepository refreshTokenRepository,
     IPasswordHasher passwordHasher,
     IJwtTokenGenerator jwtTokenGenerator,
+    IPlatformAdminChecker platformAdminChecker,
     IUnitOfWork unitOfWork) : ICommandHandler<AcceptInvitationCommand, AuthResult>
 {
     public async ValueTask<AuthResult> Handle(AcceptInvitationCommand command, CancellationToken cancellationToken)
@@ -33,6 +34,11 @@ public class AcceptInvitationCommandHandler(
         var company = await companyRepository.GetByIdAsync(invitation.CompanyId, cancellationToken)
             ?? throw new DomainException("Company not found.");
 
+        if (!company.IsActive)
+        {
+            throw new DomainException("This company account has been deactivated. Contact support.");
+        }
+
         var passwordHash = passwordHasher.Hash(command.Password);
         var user = new User(invitation.CompanyId, invitation.Email, passwordHash, command.FirstName, command.LastName, invitation.Role);
         await userRepository.AddAsync(user, cancellationToken);
@@ -42,7 +48,7 @@ public class AcceptInvitationCommandHandler(
 
         var (accessToken, expiresAtUtc) = jwtTokenGenerator.GenerateAccessToken(user);
         var refreshTokenValue = jwtTokenGenerator.GenerateRefreshToken();
-        var refreshToken = new DomainRefreshToken(user.Id, refreshTokenValue, DateTime.UtcNow.Add(jwtTokenGenerator.RefreshTokenLifetime));
+        var refreshToken = new DomainRefreshToken(user.Id, refreshTokenValue, DateTime.UtcNow.Add(jwtTokenGenerator.RefreshTokenLifetime), command.Platform);
         await refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -58,6 +64,7 @@ public class AcceptInvitationCommandHandler(
             user.Role,
             company.Id,
             company.Name,
-            company.Currency);
+            company.Currency,
+            platformAdminChecker.IsPlatformAdmin(user.Email));
     }
 }

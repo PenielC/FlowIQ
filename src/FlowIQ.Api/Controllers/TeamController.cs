@@ -1,3 +1,4 @@
+using FlowIQ.Api.Common;
 using FlowIQ.Application.CompaniesAndTeams;
 using FlowIQ.Application.CompaniesAndTeams.Commands.AcceptInvitation;
 using FlowIQ.Application.CompaniesAndTeams.Commands.CreateInvitation;
@@ -63,14 +64,16 @@ public class TeamController(ISender sender) : ControllerBase
     public async Task<ActionResult<ApiResponse<AuthResponse>>> AcceptInvitation(AcceptInvitationRequest request, CancellationToken cancellationToken)
     {
         var result = await sender.Send(
-            new AcceptInvitationCommand(request.Token, request.FirstName, request.LastName, request.Password), cancellationToken);
+            new AcceptInvitationCommand(request.Token, request.FirstName, request.LastName, request.Password, ClientPlatform.Read(Request)),
+            cancellationToken);
 
         var response = new AuthResponse(
             result.AccessToken,
             result.AccessTokenExpiresAtUtc,
             result.RefreshToken,
             new UserResponse(
-                result.UserId, result.Email, result.FirstName, result.LastName, result.Role.ToString(), result.CompanyId, result.CompanyName, result.CompanyCurrency));
+                result.UserId, result.Email, result.FirstName, result.LastName, result.Role.ToString(), result.CompanyId, result.CompanyName, result.CompanyCurrency,
+                result.IsPlatformAdmin));
 
         return Ok(ApiResponse<AuthResponse>.Ok(response));
     }

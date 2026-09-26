@@ -16,6 +16,7 @@ public class RegisterCommandHandlerTests
     private readonly Mock<IRefreshTokenRepository> _refreshTokenRepository = new();
     private readonly Mock<IPasswordHasher> _passwordHasher = new();
     private readonly Mock<IJwtTokenGenerator> _jwtTokenGenerator = new();
+    private readonly Mock<IPlatformAdminChecker> _platformAdminChecker = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
 
     private RegisterCommandHandler CreateHandler() => new(
@@ -24,6 +25,7 @@ public class RegisterCommandHandlerTests
         _refreshTokenRepository.Object,
         _passwordHasher.Object,
         _jwtTokenGenerator.Object,
+        _platformAdminChecker.Object,
         _unitOfWork.Object);
 
     [Fact]
