@@ -2,7 +2,7 @@ services:
   - type: web
     name: flowiq-api
     runtime: docker
-    plan: free
+    plan: 0.5c-512mb # closest current equivalent to the legacy "Starter" plan
     dockerfilePath: ./src/FlowIQ.Api/Dockerfile
     dockerContext: .
     healthCheckPath: /health
