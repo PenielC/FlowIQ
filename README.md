@@ -2,7 +2,7 @@
 
 AI Cash Flow Intelligence Platform for African SMEs — predicting cash flow, automating financial categorisation, and improving collection of outstanding invoices through AI.
 
-See [CLAUDE_FLOWIQ.md](CLAUDE_FLOWIQ.md) for full product, architecture, and engineering standards, and [docs/BRAND.md](docs/BRAND.md) for brand identity and colors.
+See [CLAUDE_FLOWIQ.md](CLAUDE_FLOWIQ.md) for full product, architecture, and engineering standards.
 
 ## Structure
 
@@ -19,7 +19,6 @@ See [CLAUDE_FLOWIQ.md](CLAUDE_FLOWIQ.md) for full product, architecture, and eng
   /web      - React web app
   /mobile   - React Native mobile app
 
-/assets/brand  - Logo and brand identity assets
 /docs          - Project documentation
 ```
 
@@ -269,12 +268,6 @@ Point it at a running API with `EXPO_PUBLIC_API_URL` in `apps/mobile/.env` (copy
 - **AI Categorisation** (`src/lib/categorisationApi.ts`): the "Add Transaction" modal's category chips auto-select the suggested category as you type the description, with a "Suggested from description" hint; tapping a chip manually stops further auto-overwriting.
 - **AI Insights** (`src/lib/insightsApi.ts`): the Home screen's "AI Insight" banner shows the highest-priority real insight (or hides itself when there's nothing to flag) instead of hardcoded copy. Every Home screen stat card is now real data — nothing left mock.
 - **Stripe Subscriptions** (`src/lib/subscriptionsApi.ts`): a "Billing" section under the "More" tab — shows the current plan/status with a "Manage Billing" action if subscribed, or plan options with a "Subscribe" action otherwise, both opening the real Stripe-hosted checkout/portal URL via `Linking.openURL` (system browser) rather than an embedded webview. Owner-only, same as web.
-
-## Brand asset notes
-- `assets/brand/flowiq-logo.png` / `flowiq-logo-2.png` are clean, isolated lockups (navy background) — these are what the web/mobile logos are cropped from.
-- `assets/brand/flowiq-logo-options-and-colors.png` is a composite mockup sheet (multiple concepts on one canvas), not directly usable as an asset — kept for reference only.
-- `assets/brand/flowiq-dashboard-design.png`, `flowiq-mobile-design.png`, `flowiq-look-and-feel-design.png` are the UI design references the web dashboard and mobile home screen were built to match.
-- App icon source resolution is limited (upscaled from a mockup screenshot, not a vector export) — fine for development, but worth getting real vector/1024px source files from the designer before shipping to app stores.
 
 ## Status
 Authentication, Bank Transactions, Invoicing, Companies & Teams, Cash Flow Forecasting, AI Categorisation, AI Insights, and Stripe Subscriptions all work end-to-end across backend, web, and mobile, verified against a real Postgres instance and (for Subscriptions) a real Stripe test-mode account — including a full live webhook round-trip — through the actual UIs. Reports & Analytics and Customers both work end-to-end on backend + web (mobile intentionally has neither — see the module notes above). Local dev environment (Postgres + Redis) is up via `docker-compose.yml` with a restart policy. **All 8 core spec modules plus AI Insights are now built and verified — no mock data remains anywhere in either app.** Customers is a bonus module beyond the original spec (a standalone contact directory, not yet linked to Invoicing). Every amount across both apps now formats via the company's chosen currency (Settings, web-only picker, Owner-only) instead of a hardcoded `$`. Invitations have no real email delivery yet (link is surfaced directly in the UI instead). See [Deployment](#deployment-render--neon) below for hosting.

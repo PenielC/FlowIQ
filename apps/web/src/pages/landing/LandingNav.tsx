@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom'
+import logoLight from '../../assets/flowiq-logo-v2-light.png'
 import { Logo } from '../../components/Logo'
 
 export function LandingNav() {
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-brand-navy/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <Logo />
+        <Logo src={logoLight} />
 
         <nav className="hidden items-center gap-8 md:flex">
           <a href="#top" className="flex flex-col items-center gap-1.5 text-sm font-medium text-white">

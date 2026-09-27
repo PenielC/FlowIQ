@@ -1,5 +1,6 @@
 import { ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import logoLight from '../../assets/flowiq-logo-v2-light.png'
 import { Logo } from '../../components/Logo'
 import { Reveal } from '../../components/Reveal'
 
@@ -16,7 +17,7 @@ export function LandingCtaFooter() {
 
       <Reveal className="relative mx-auto flex max-w-7xl flex-col items-center justify-between gap-8 px-6 py-16 lg:flex-row lg:text-left">
         <div className="flex flex-col items-center lg:items-start">
-          <Logo />
+          <Logo src={logoLight} />
           <p className="mt-2 text-sm text-slate-400">Smarter Finance. Bigger Dreams.</p>
         </div>
 
