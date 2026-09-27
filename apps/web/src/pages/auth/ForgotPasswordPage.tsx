@@ -1,6 +1,7 @@
 import { Mail } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
+import logoDark from '../../assets/flowiq-logo-v2-dark.png'
 import { Logo } from '../../components/Logo'
 import { useAuth } from '../../lib/AuthContext'
 
@@ -29,7 +30,7 @@ export function ForgotPasswordPage() {
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex justify-center">
-          <Logo variant="dark" />
+          <Logo variant="dark" src={logoDark} />
         </div>
         <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
           {submitted ? (
