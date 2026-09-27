@@ -1,6 +1,7 @@
 import { AppTabBar } from '@/components/AppTabBar'
 import { colors } from '@/constants/colors'
 import { AuthProvider, useAuth } from '@/lib/AuthContext'
+import { ForgotPasswordScreen } from '@/screens/ForgotPasswordScreen'
 import { LoginScreen } from '@/screens/LoginScreen'
 import { RegisterScreen } from '@/screens/RegisterScreen'
 import { StatusBar } from 'expo-status-bar'
@@ -11,7 +12,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 
 function RootNavigator() {
   const { isAuthenticated, isLoading } = useAuth()
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login')
+  const [authMode, setAuthMode] = useState<'login' | 'register' | 'forgot-password'>('login')
 
   if (isLoading) {
     return (
@@ -22,10 +23,14 @@ function RootNavigator() {
   }
 
   if (!isAuthenticated) {
-    return authMode === 'login' ? (
-      <LoginScreen onSwitchToRegister={() => setAuthMode('register')} />
-    ) : (
-      <RegisterScreen onSwitchToLogin={() => setAuthMode('login')} />
+    if (authMode === 'register') {
+      return <RegisterScreen onSwitchToLogin={() => setAuthMode('login')} />
+    }
+    if (authMode === 'forgot-password') {
+      return <ForgotPasswordScreen onSwitchToLogin={() => setAuthMode('login')} />
+    }
+    return (
+      <LoginScreen onSwitchToRegister={() => setAuthMode('register')} onSwitchToForgotPassword={() => setAuthMode('forgot-password')} />
     )
   }
 

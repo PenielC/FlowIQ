@@ -25,4 +25,6 @@ public class User : BaseAuditableEntity, IAggregateRoot
     public UserRole Role { get; private set; }
 
     public void ChangeRole(UserRole newRole) => Role = newRole;
+
+    public void SetPasswordHash(string newHash) => PasswordHash = newHash;
 }

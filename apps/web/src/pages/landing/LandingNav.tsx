@@ -12,8 +12,9 @@ export function LandingNav() {
             Home
             <span className="h-0.5 w-4 rounded-full bg-emerald-400" />
           </a>
-          <a href="#features" className="text-sm font-medium text-slate-300 transition-colors hover:text-white">
+          <a href="#features" className="flex flex-col items-center gap-1.5 text-sm font-medium text-slate-300 transition-colors hover:text-white">
             Features
+            <span className="h-0.5 w-4 rounded-full bg-transparent" />
           </a>
         </nav>
 

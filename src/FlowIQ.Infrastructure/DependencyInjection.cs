@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using FlowIQ.Application.Authentication;
 using FlowIQ.Application.BankTransactions;
 using FlowIQ.Application.Common.Interfaces;
@@ -7,6 +8,7 @@ using FlowIQ.Application.Invoicing;
 using FlowIQ.Application.StripeSubscriptions;
 using FlowIQ.Infrastructure.Authentication;
 using FlowIQ.Infrastructure.Common;
+using FlowIQ.Infrastructure.Email;
 using FlowIQ.Infrastructure.ExchangeRates;
 using FlowIQ.Infrastructure.Persistence;
 using FlowIQ.Infrastructure.Repositories;
@@ -37,18 +39,27 @@ public static class DependencyInjection
         services.AddScoped<IInvoiceRepository, InvoiceRepository>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<IInvitationRepository, InvitationRepository>();
+        services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
         services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
         services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddSingleton<IAppUrlProvider, AppUrlProvider>();
         services.AddSingleton<IPlatformAdminChecker, PlatformAdminChecker>();
+        services.AddSingleton<IFeedbackSettings, FeedbackSettings>();
         services.AddScoped<IStripeGateway, StripeGateway>();
 
         services.AddHttpClient<IExchangeRateProvider, FrankfurterExchangeRateProvider>(client =>
         {
             client.BaseAddress = new Uri("https://api.frankfurter.app/");
             client.Timeout = TimeSpan.FromSeconds(5);
+        });
+
+        services.AddHttpClient<IEmailSender, ResendEmailSender>((sp, client) =>
+        {
+            client.BaseAddress = new Uri("https://api.resend.com/");
+            var apiKey = sp.GetRequiredService<IConfiguration>()["Email:ResendApiKey"];
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
         });
 
         return services;

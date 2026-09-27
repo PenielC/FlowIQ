@@ -18,6 +18,7 @@ interface AuthContextValue {
   isAuthenticated: boolean
   login: (email: string, password: string) => Promise<void>
   register: (input: RegisterInput) => Promise<void>
+  forgotPassword: (email: string) => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -82,13 +83,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  async function forgotPassword(email: string) {
+    try {
+      const res = await api.post<ApiResponse<object>>('/api/auth/forgot-password', { email })
+      if (!res.data.success) throw new Error('Failed to request password reset')
+    } catch (error) {
+      throw new Error(extractErrorMessage(error))
+    }
+  }
+
   async function logout() {
     await tokenStorage.clear()
     setUser(null)
   }
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, isAuthenticated: !!user, login, register, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, isAuthenticated: !!user, login, register, forgotPassword, logout }}>
       {children}
     </AuthContext.Provider>
   )

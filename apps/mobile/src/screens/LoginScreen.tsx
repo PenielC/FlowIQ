@@ -23,7 +23,13 @@ const features = [
   { icon: Receipt, label: 'Faster invoice collections' },
 ]
 
-export function LoginScreen({ onSwitchToRegister }: { onSwitchToRegister: () => void }) {
+export function LoginScreen({
+  onSwitchToRegister,
+  onSwitchToForgotPassword,
+}: {
+  onSwitchToRegister: () => void
+  onSwitchToForgotPassword: () => void
+}) {
   const { login } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -79,7 +85,12 @@ export function LoginScreen({ onSwitchToRegister }: { onSwitchToRegister: () => 
               placeholder="you@company.com"
             />
 
-            <Text style={styles.label}>Password</Text>
+            <View style={styles.labelRow}>
+              <Text style={styles.label}>Password</Text>
+              <Pressable onPress={onSwitchToForgotPassword} hitSlop={8}>
+                <Text style={styles.forgotLink}>Forgot password?</Text>
+              </Pressable>
+            </View>
             <PasswordField value={password} onChangeText={setPassword} placeholder="Enter your password" />
 
             {error && <Text style={styles.error}>{error}</Text>}
@@ -136,6 +147,8 @@ const styles = StyleSheet.create({
   title: { color: colors.textOnLight, fontSize: 20, fontWeight: '700' },
   subtitle: { color: colors.textMuted, fontSize: 14, marginTop: 4, marginBottom: 20 },
   label: { color: colors.textOnLight, fontSize: 13, fontWeight: '500', marginBottom: 6, marginTop: 12 },
+  labelRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  forgotLink: { color: colors.primary, fontSize: 12, fontWeight: '600' },
   error: { color: colors.negative, fontSize: 13, marginTop: 12 },
   button: {
     backgroundColor: colors.primary,

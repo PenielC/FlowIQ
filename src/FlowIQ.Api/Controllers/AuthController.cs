@@ -1,9 +1,11 @@
 using System.IdentityModel.Tokens.Jwt;
 using FlowIQ.Api.Common;
 using FlowIQ.Application.Authentication;
+using FlowIQ.Application.Authentication.Commands.ForgotPassword;
 using FlowIQ.Application.Authentication.Commands.Login;
 using FlowIQ.Application.Authentication.Commands.RefreshToken;
 using FlowIQ.Application.Authentication.Commands.Register;
+using FlowIQ.Application.Authentication.Commands.ResetPassword;
 using FlowIQ.Application.Authentication.Queries.GetCurrentUser;
 using FlowIQ.Contracts.Authentication;
 using FlowIQ.Contracts.Common;
@@ -42,6 +44,20 @@ public class AuthController(ISender sender) : ControllerBase
         var result = await sender.Send(new RefreshTokenCommand(request.RefreshToken, ClientPlatform.Read(Request)), cancellationToken);
 
         return Ok(ApiResponse<AuthResponse>.Ok(ToResponse(result)));
+    }
+
+    [HttpPost("forgot-password")]
+    public async Task<ActionResult<ApiResponse<object>>> ForgotPassword(ForgotPasswordRequest request, CancellationToken cancellationToken)
+    {
+        await sender.Send(new ForgotPasswordCommand(request.Email), cancellationToken);
+        return Ok(ApiResponse<object>.Ok(new { }));
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<ActionResult<ApiResponse<object>>> ResetPassword(ResetPasswordRequest request, CancellationToken cancellationToken)
+    {
+        await sender.Send(new ResetPasswordCommand(request.Token, request.NewPassword), cancellationToken);
+        return Ok(ApiResponse<object>.Ok(new { }));
     }
 
     [HttpGet("me")]

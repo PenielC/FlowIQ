@@ -6,14 +6,17 @@ import {
   LayoutDashboard,
   LineChart,
   ListChecks,
+  MessageSquarePlus,
   Receipt,
   Settings,
   Shield,
   Users,
 } from 'lucide-react'
 import { ChevronDown } from 'lucide-react'
+import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../lib/AuthContext'
+import { FeedbackModal } from './FeedbackModal'
 import { Logo } from './Logo'
 
 type NavItem = { to: string; label: string; icon: LucideIcon; end?: boolean }
@@ -34,6 +37,7 @@ const adminNavItem: NavItem = { to: '/admin', label: 'Admin', icon: Shield }
 export function Sidebar() {
   const { user } = useAuth()
   const items = user?.isPlatformAdmin ? [...navItems, adminNavItem] : navItems
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false)
 
   return (
     <aside className="flex w-64 shrink-0 flex-col justify-between bg-gradient-to-b from-slate-900 to-brand-navy px-4 py-6">
@@ -74,6 +78,14 @@ export function Sidebar() {
           </span>
           <ChevronDown size={16} className="text-slate-400" />
         </button>
+        <button
+          type="button"
+          onClick={() => setShowFeedbackModal(true)}
+          className="mb-2 flex w-full items-center gap-2 px-1 text-xs text-slate-400 hover:text-white"
+        >
+          <MessageSquarePlus size={14} />
+          Send Feedback
+        </button>
         <a
           href="mailto:support@flowiq.com"
           className="flex items-center gap-2 px-1 text-xs text-slate-400 hover:text-white"
@@ -82,6 +94,8 @@ export function Sidebar() {
           Need help? support@flowiq.com
         </a>
       </div>
+
+      {showFeedbackModal && <FeedbackModal onClose={() => setShowFeedbackModal(false)} />}
     </aside>
   )
 }

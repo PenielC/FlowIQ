@@ -9,4 +9,9 @@ public class RefreshTokenRepository(ApplicationDbContext dbContext) : EfReposito
 {
     public Task<RefreshToken?> GetByTokenAsync(string token, CancellationToken cancellationToken = default) =>
         DbContext.RefreshTokens.FirstOrDefaultAsync(t => t.Token == token, cancellationToken);
+
+    public Task<List<RefreshToken>> GetActiveByUserIdAsync(Guid userId, CancellationToken cancellationToken = default) =>
+        DbContext.RefreshTokens
+            .Where(t => t.UserId == userId && t.RevokedAtUtc == null && t.ExpiresAtUtc > DateTime.UtcNow)
+            .ToListAsync(cancellationToken);
 }

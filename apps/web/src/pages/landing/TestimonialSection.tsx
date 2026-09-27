@@ -24,11 +24,11 @@ export function TestimonialSection() {
           </div>
           <div className="absolute -bottom-8 right-4 max-w-xs rounded-2xl border border-slate-100 bg-white p-5 shadow-xl sm:-right-8">
             <p className="text-sm text-slate-600">
-              &ldquo;FlowIQ has completely changed how we manage our finances. We can now see our cash flow, track
-              invoices and plan for growth with confidence.&rdquo;
+              &ldquo;So many African SMEs are still running cash flow from memory and a notebook. We're building the
+              tool we wish existed — one that shows you where your money's going before it's too late.&rdquo;
             </p>
-            <p className="mt-3 text-sm font-semibold text-slate-900">— Demo Testimonial</p>
-            <p className="text-xs text-slate-400">Illustrative quote, not a real customer</p>
+            <p className="mt-3 text-sm font-semibold text-slate-900">— Peniel Chingombe</p>
+            <p className="text-xs text-slate-400">Founder, FlowIQ</p>
           </div>
         </Reveal>
 

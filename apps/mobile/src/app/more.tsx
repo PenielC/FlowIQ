@@ -3,8 +3,9 @@ import { useAuth } from '@/lib/AuthContext'
 import { createBillingPortalSession, createCheckoutSession, fetchSubscriptionPlans, fetchSubscriptionStatus } from '@/lib/subscriptionsApi'
 import { fetchPendingInvitations, fetchTeamMembers, removeMember, revokeInvitation } from '@/lib/teamApi'
 import type { InvitationResponse, SubscriptionPlanResponse, SubscriptionStatusResponse, TeamMemberResponse } from '@/lib/types'
+import { FeedbackModal } from '@/screens/FeedbackModal'
 import { InviteMemberModal } from '@/screens/InviteMemberModal'
-import { CreditCard, LogOut, Share2, Trash2, UserPlus, X } from 'lucide-react-native'
+import { CreditCard, LogOut, MessageSquarePlus, Share2, Trash2, UserPlus, X } from 'lucide-react-native'
 import { useEffect, useState } from 'react'
 import { ActivityIndicator, Alert, Linking, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -38,6 +39,7 @@ export default function MoreScreen() {
   const [isLoading, setIsLoading] = useState(true)
   const [reloadToken, setReloadToken] = useState(0)
   const [showInviteModal, setShowInviteModal] = useState(false)
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false)
 
   const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatusResponse | null>(null)
   const [plans, setPlans] = useState<SubscriptionPlanResponse[]>([])
@@ -252,6 +254,11 @@ export default function MoreScreen() {
           </View>
         )}
 
+        <Pressable style={styles.feedbackButton} onPress={() => setShowFeedbackModal(true)}>
+          <MessageSquarePlus size={16} color={colors.primary} />
+          <Text style={styles.feedbackText}>Send Feedback</Text>
+        </Pressable>
+
         <Pressable style={styles.logoutButton} onPress={logout}>
           <LogOut size={16} color={colors.negative} />
           <Text style={styles.logoutText}>Log out</Text>
@@ -266,6 +273,8 @@ export default function MoreScreen() {
           refresh()
         }}
       />
+
+      <FeedbackModal visible={showFeedbackModal} onClose={() => setShowFeedbackModal(false)} />
     </SafeAreaView>
   )
 }
@@ -309,6 +318,20 @@ const styles = StyleSheet.create({
   memberEmail: { color: colors.textSecondary, fontSize: 12, marginTop: 2 },
   roleBadge: { fontSize: 12, fontWeight: '600' },
   iconButton: { padding: 4 },
+  feedbackButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: colors.navyCard,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginBottom: 12,
+  },
+  feedbackText: { color: colors.primary, fontSize: 14, fontWeight: '600' },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',

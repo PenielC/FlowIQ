@@ -1,6 +1,7 @@
 import { isAxiosError } from 'axios'
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { api } from './api'
+import { requestPasswordReset, resetPassword as resetPasswordRequest } from './passwordResetApi'
 import { acceptInvitation as acceptInvitationRequest } from './teamApi'
 import { tokenStorage } from './tokenStorage'
 import type { ApiResponse, AuthResponse, UserResponse } from './types'
@@ -38,6 +39,8 @@ interface AuthContextValue {
   login: (email: string, password: string) => Promise<void>
   register: (input: RegisterInput) => Promise<void>
   acceptInvitation: (input: AcceptInvitationInput) => Promise<void>
+  forgotPassword: (email: string) => Promise<void>
+  resetPassword: (input: { token: string; newPassword: string }) => Promise<void>
   logout: () => void
   refreshUser: () => Promise<void>
 }
@@ -97,13 +100,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  async function forgotPassword(email: string) {
+    try {
+      await requestPasswordReset(email)
+    } catch (error) {
+      throw new Error(extractErrorMessage(error))
+    }
+  }
+
+  async function resetPassword(input: { token: string; newPassword: string }) {
+    try {
+      await resetPasswordRequest(input)
+    } catch (error) {
+      throw new Error(extractErrorMessage(error))
+    }
+  }
+
   function logout() {
     tokenStorage.clear()
     setUser(null)
   }
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, isAuthenticated: !!user, login, register, acceptInvitation, logout, refreshUser }}>
+    <AuthContext.Provider
+      value={{ user, isLoading, isAuthenticated: !!user, login, register, acceptInvitation, forgotPassword, resetPassword, logout, refreshUser }}
+    >
       {children}
     </AuthContext.Provider>
   )

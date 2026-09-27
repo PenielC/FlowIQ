@@ -1,0 +1,60 @@
+services:
+  - type: web
+    name: flowiq-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./src/FlowIQ.Api/Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__DefaultConnection
+        sync: false
+      # Upstash Redis — paste the StackExchange.Redis-compatible connection string
+      # from the Upstash dashboard (endpoint:port,password=...,ssl=True)
+      - key: Redis__ConnectionString
+        sync: false
+      - key: Jwt__Issuer
+        value: FlowIQ
+      - key: Jwt__Audience
+        value: FlowIQ
+      - key: Jwt__Secret
+        generateValue: true
+      - key: Jwt__AccessTokenExpiryMinutes
+        value: 60
+      - key: Jwt__RefreshTokenExpiryDays
+        value: 7
+      - key: Cors__AllowedOrigins__0
+        sync: false
+      - key: App__WebBaseUrl
+        sync: false
+      - key: Stripe__SecretKey
+        sync: false
+      - key: Stripe__WebhookSecret
+        sync: false
+      # Resend — paste the API key from the Resend dashboard
+      - key: Email__ResendApiKey
+        sync: false
+      - key: Email__FromAddress
+        sync: false
+      - key: Admin__AllowedEmails__0
+        value: peniel.chingombe@gmail.com
+      - key: Feedback__RecipientEmail
+        value: peniel.chingombe@gmail.com
+
+  - type: web
+    name: flowiq-web
+    runtime: static
+    plan: free
+    buildCommand: cd apps/web && npm install && npm run build
+    staticPublishPath: ./apps/web/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        sync: false
