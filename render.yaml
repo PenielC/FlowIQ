@@ -2,7 +2,7 @@ services:
   - type: web
     name: flowiq-api
     runtime: docker
-    plan: 0.5c-512mb # closest current equivalent to the legacy "Starter" plan
+    plan: 1c-2g
     dockerfilePath: ./src/FlowIQ.Api/Dockerfile
     dockerContext: .
     healthCheckPath: /health
@@ -48,7 +48,6 @@ services:
   - type: web
     name: flowiq-web
     runtime: static
-    plan: free
     buildCommand: cd apps/web && npm install && npm run build
     staticPublishPath: ./apps/web/dist
     routes:
