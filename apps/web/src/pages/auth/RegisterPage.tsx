@@ -33,7 +33,7 @@ export function RegisterPage() {
   return (
     <AuthLayout mode="register">
       <h1 className="text-center text-xl font-bold text-slate-900">Create your account</h1>
-      <p className="mt-1 text-center text-sm text-slate-500">Start predicting your cash flow with FlowIQ.</p>
+      <p className="mt-1 text-center text-sm text-slate-500">Start predicting your cash flow with FinFlow.</p>
 
       <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
         <div>

@@ -87,11 +87,11 @@ export function Sidebar() {
           Send Feedback
         </button>
         <a
-          href="mailto:support@flowiq.com"
+          href="mailto:support@flowiqfinance.com"
           className="flex items-center gap-2 px-1 text-xs text-slate-400 hover:text-white"
         >
           <HelpCircle size={14} />
-          Need help? support@flowiq.com
+          Need help? support@flowiqfinance.com
         </a>
       </div>
 

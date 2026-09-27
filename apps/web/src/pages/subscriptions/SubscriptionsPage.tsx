@@ -80,7 +80,7 @@ export function SubscriptionsPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-900">Subscriptions</h1>
-        <p className="text-sm text-slate-500">Manage your FlowIQ plan and billing.</p>
+        <p className="text-sm text-slate-500">Manage your FinFlow plan and billing.</p>
       </div>
 
       {checkoutResult === 'success' && (

@@ -45,7 +45,7 @@ export function FeatureGridSection() {
             Everything You Need for Financial Control
           </h2>
           <p className="mt-4 text-slate-500">
-            From bank transactions to invoice collection, FlowIQ brings your business finances together with the
+            From bank transactions to invoice collection, FinFlow brings your business finances together with the
             power of AI — so you can make smarter decisions, faster.
           </p>
           <Link

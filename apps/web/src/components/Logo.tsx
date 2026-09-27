@@ -24,12 +24,12 @@ export function Logo({
   return (
     <img
       src={src ?? (variant === 'dark' ? lockupDark : lockupLight)}
-      alt="FlowIQ"
+      alt="FinFlow"
       className={`h-8 w-auto shrink-0 self-start ${className}`}
     />
   )
 }
 
 export function LogoIcon({ className = '' }: { className?: string }) {
-  return <img src={icon} alt="FlowIQ" className={`h-8 w-auto shrink-0 self-start ${className}`} />
+  return <img src={icon} alt="FinFlow" className={`h-8 w-auto shrink-0 self-start ${className}`} />
 }

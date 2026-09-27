@@ -53,7 +53,7 @@ export function RegisterScreen({ onSwitchToLogin }: { onSwitchToLogin: () => voi
           </View>
 
           <Text style={styles.title}>Create your account</Text>
-          <Text style={styles.subtitle}>Start predicting your cash flow with FlowIQ.</Text>
+          <Text style={styles.subtitle}>Start predicting your cash flow with FinFlow.</Text>
 
           <Text style={styles.label}>Company name</Text>
           <IconTextField icon={Building2} value={companyName} onChangeText={setCompanyName} />

@@ -128,7 +128,7 @@ export default function MoreScreen() {
 
   function shareInviteLink(invitation: InvitationResponse) {
     const webUrl = process.env.EXPO_PUBLIC_WEB_URL ?? 'http://localhost:5173'
-    Share.share({ message: `Join our team on FlowIQ: ${webUrl}/accept-invitation?token=${invitation.token}` })
+    Share.share({ message: `Join our team on FinFlow: ${webUrl}/accept-invitation?token=${invitation.token}` })
   }
 
   return (

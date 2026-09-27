@@ -120,7 +120,7 @@ export function AuthLayout({ mode, children }: { mode: 'login' | 'register'; chi
           </div>
         </div>
 
-        <p className="relative z-10 mt-8 text-xs text-slate-500">© {new Date().getFullYear()} FlowIQ</p>
+        <p className="relative z-10 mt-8 text-xs text-slate-500">© {new Date().getFullYear()} FinFlow</p>
       </div>
 
       <div className="relative flex w-full flex-1 items-start justify-center overflow-y-auto bg-slate-50 px-4 pb-10 pt-12 lg:bg-white">

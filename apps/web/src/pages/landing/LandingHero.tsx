@@ -37,7 +37,7 @@ export function LandingHero() {
             </span>
           </h1>
           <p className="mt-5 max-w-lg text-lg text-slate-300">
-            FlowIQ helps African SMEs predict cash flow, automate financial categorisation, and improve collection of
+            FinFlow helps African SMEs predict cash flow, automate financial categorisation, and improve collection of
             outstanding invoices through AI.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-4">
@@ -77,7 +77,7 @@ export function LandingHero() {
           {/* Laptop frame */}
           <div className="relative mx-auto max-w-xl rounded-t-xl border-[6px] border-slate-800 bg-slate-800 shadow-2xl">
             <div className="overflow-hidden rounded-t-md bg-white">
-              <img src={showcaseDashboard} alt="FlowIQ dashboard" className="h-64 w-full object-cover object-top sm:h-80" />
+              <img src={showcaseDashboard} alt="FinFlow dashboard" className="h-64 w-full object-cover object-top sm:h-80" />
             </div>
           </div>
           <div className="relative mx-auto h-3 max-w-2xl rounded-b-xl bg-gradient-to-b from-slate-700 to-slate-800 shadow-xl" />
@@ -87,7 +87,7 @@ export function LandingHero() {
           <div className="absolute -bottom-6 -right-2 w-32 rounded-[1.5rem] border-[5px] border-slate-800 bg-slate-800 shadow-2xl sm:-right-6 sm:w-40">
             <div className="relative overflow-hidden rounded-[1.1rem] bg-white">
               <div className="absolute left-1/2 top-1 z-10 h-2.5 w-10 -translate-x-1/2 rounded-full bg-slate-800" />
-              <img src={showcaseMobile} alt="FlowIQ mobile app" className="h-56 w-full object-cover object-top sm:h-72" />
+              <img src={showcaseMobile} alt="FinFlow mobile app" className="h-56 w-full object-cover object-top sm:h-72" />
             </div>
           </div>
         </div>

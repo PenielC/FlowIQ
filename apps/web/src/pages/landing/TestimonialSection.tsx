@@ -28,7 +28,7 @@ export function TestimonialSection() {
               tool we wish existed — one that shows you where your money's going before it's too late.&rdquo;
             </p>
             <p className="mt-3 text-sm font-semibold text-slate-900">— Peniel Chingombe</p>
-            <p className="text-xs text-slate-400">Founder, FlowIQ</p>
+            <p className="text-xs text-slate-400">Founder, FinFlow</p>
           </div>
         </Reveal>
 
@@ -38,7 +38,7 @@ export function TestimonialSection() {
             Modern Technology. Enterprise Grade Architecture.
           </h2>
           <p className="mt-4 text-slate-500">
-            FlowIQ is built with modern, scalable technology and best practices to ensure security, performance and
+            FinFlow is built with modern, scalable technology and best practices to ensure security, performance and
             reliability — today and tomorrow.
           </p>
 

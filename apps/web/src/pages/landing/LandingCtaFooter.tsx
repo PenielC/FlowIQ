@@ -22,7 +22,7 @@ export function LandingCtaFooter() {
 
         <div className="text-center lg:text-left">
           <h2 className="text-2xl font-bold text-white sm:text-3xl">Ready to take control of your cash flow?</h2>
-          <p className="mt-2 text-slate-400">Get started with FlowIQ in minutes — no credit card required.</p>
+          <p className="mt-2 text-slate-400">Get started with FinFlow in minutes — no credit card required.</p>
         </div>
 
         <Link
@@ -37,7 +37,7 @@ export function LandingCtaFooter() {
       </Reveal>
 
       <div className="relative border-t border-white/10 px-6 py-6 text-center text-xs text-slate-500">
-        © {new Date().getFullYear()} FlowIQ. All rights reserved.
+        © {new Date().getFullYear()} FinFlow. All rights reserved.
       </div>
     </footer>
   )
