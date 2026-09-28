@@ -4,6 +4,7 @@ import { fetchCompanyLogo } from '../../lib/companiesApi'
 import { useAuth } from '../../lib/AuthContext'
 import { formatCurrency, formatDate } from '../../lib/categoryDisplay'
 import { fetchInvoiceById, markInvoicePaid } from '../../lib/invoicesApi'
+import { isIOS, renderInvoicePdf, saveFile, shareOrOpenPdf } from '../../lib/invoicePdf'
 import { invoiceStatusColor, invoiceStatusLabel } from '../../lib/invoiceDisplay'
 import type { InvoiceResponse } from '../../lib/types'
 
@@ -36,6 +37,7 @@ export function InvoiceDetailModal({
   const [error, setError] = useState<string | null>(null)
   const [isMarkingPaid, setIsMarkingPaid] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
+  const [readyPdf, setReadyPdf] = useState<File | null>(null)
   const documentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -58,6 +60,7 @@ export function InvoiceDetailModal({
     try {
       const updated = await markInvoicePaid(invoiceId)
       setInvoice(updated)
+      setReadyPdf(null)
       onChanged()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to mark invoice as paid')
@@ -68,17 +71,24 @@ export function InvoiceDetailModal({
 
   async function handleDownload() {
     if (!documentRef.current || !invoice) return
+    setError(null)
+
+    // Second tap on iOS: the PDF is already built, so hand it over inside this fresh tap.
+    if (readyPdf) {
+      if (!(await shareOrOpenPdf(readyPdf))) setError('Your browser blocked the PDF. Allow pop-ups for this site and tap Save PDF again.')
+      return
+    }
+
     setIsDownloading(true)
     try {
-      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([import('html2canvas-pro'), import('jspdf')])
-      const canvas = await html2canvas(documentRef.current, { scale: 2, backgroundColor: '#ffffff' })
-
-      const pdf = new jsPDF({ unit: 'pt', format: 'a4' })
-      const pageWidth = pdf.internal.pageSize.getWidth()
-      const imageHeight = (canvas.height * pageWidth) / canvas.width
-
-      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pageWidth, imageHeight)
-      pdf.save(`${invoiceNumber(invoice.id)}.pdf`)
+      const file = await renderInvoicePdf(documentRef.current, `${invoiceNumber(invoice.id)}.pdf`)
+      if (!isIOS()) {
+        saveFile(file)
+      } else if (!(await shareOrOpenPdf(file))) {
+        setReadyPdf(file)
+      }
+    } catch {
+      setError('Could not create the PDF. Please try again, or use Print and choose Save as PDF.')
     } finally {
       setIsDownloading(false)
     }
@@ -101,7 +111,7 @@ export function InvoiceDetailModal({
         ) : error && !invoice ? (
           <p className="py-16 text-center text-sm text-red-500">{error}</p>
         ) : invoice ? (
-          <div className="p-8">
+          <div className="p-5 sm:p-8">
             <div ref={documentRef} className="bg-white p-2">
             <div className="flex items-start justify-between gap-6">
               <div className="flex flex-col gap-2">
@@ -166,8 +176,11 @@ export function InvoiceDetailModal({
             </div>
 
             {error && <p className="mt-4 text-sm text-red-500 print:hidden">{error}</p>}
+            {readyPdf && !error && (
+              <p className="mt-4 text-sm text-emerald-700 print:hidden">Your PDF is ready. Tap Save PDF to save or share it.</p>
+            )}
 
-            <div className="mt-8 flex items-center gap-3 border-t border-slate-100 pt-6 print:hidden">
+            <div className="mt-8 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-6 print:hidden">
               {invoice.status !== 'Paid' && (
                 <button
                   type="button"
@@ -194,7 +207,7 @@ export function InvoiceDetailModal({
                 className="flex items-center justify-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
               >
                 <Download size={16} />
-                {isDownloading ? 'Preparing…' : 'Download'}
+                {isDownloading ? 'Preparing…' : readyPdf ? 'Save PDF' : 'Download'}
               </button>
             </div>
           </div>
