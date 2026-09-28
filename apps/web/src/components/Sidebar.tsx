@@ -15,6 +15,7 @@ import {
 import { ChevronDown } from 'lucide-react'
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
+import logoLight from '../assets/flowiq-logo-v2-light.png'
 import { useAuth } from '../lib/AuthContext'
 import { FeedbackModal } from './FeedbackModal'
 import { Logo } from './Logo'
@@ -42,7 +43,7 @@ export function Sidebar() {
   return (
     <aside className="flex w-64 shrink-0 flex-col justify-between bg-gradient-to-b from-slate-900 to-brand-navy px-4 py-6">
       <div>
-        <Logo className="mb-8 ml-2" />
+        <Logo src={logoLight} className="mb-8 ml-2" />
         <nav className="flex flex-col gap-1">
           {items.map((item) => (
             <NavLink

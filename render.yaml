@@ -13,8 +13,6 @@ services:
         value: Production
       - key: ConnectionStrings__DefaultConnection
         sync: false
-      # Upstash Redis — paste the StackExchange.Redis-compatible connection string
-      # from the Upstash dashboard (endpoint:port,password=...,ssl=True)
       - key: Redis__ConnectionString
         sync: false
       - key: Jwt__Issuer
