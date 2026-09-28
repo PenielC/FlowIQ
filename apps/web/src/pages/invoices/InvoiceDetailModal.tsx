@@ -1,5 +1,6 @@
 import { CheckCircle2, Download, Printer, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { fetchCompanyLogo } from '../../lib/companiesApi'
 import { useAuth } from '../../lib/AuthContext'
 import { formatCurrency, formatDate } from '../../lib/categoryDisplay'
@@ -39,6 +40,11 @@ export function InvoiceDetailModal({
   const [isDownloading, setIsDownloading] = useState(false)
   const [readyPdf, setReadyPdf] = useState<File | null>(null)
   const documentRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    document.body.classList.add('invoice-modal-open')
+    return () => document.body.classList.remove('invoice-modal-open')
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -96,8 +102,8 @@ export function InvoiceDetailModal({
 
   const note = invoice ? dueDateNote(invoice) : null
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/40 px-4 py-8 print:bg-white print:p-0">
+  return createPortal(
+    <div className="invoice-print-overlay fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/40 px-4 py-8 print:bg-white print:p-0">
       <div className="invoice-print-area w-full max-w-2xl rounded-2xl bg-white shadow-xl print:rounded-none print:shadow-none">
         <div className="flex items-center justify-between border-b border-slate-100 p-4 print:hidden">
           <h2 className="text-sm font-semibold text-slate-500">Invoice</h2>
@@ -213,6 +219,7 @@ export function InvoiceDetailModal({
           </div>
         ) : null}
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
