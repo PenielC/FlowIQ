@@ -55,7 +55,7 @@ export function InvoicesPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Invoices</h1>
           <p className="text-sm text-slate-500">Track what your customers owe you.</p>
@@ -70,8 +70,8 @@ export function InvoicesPage() {
         </button>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <table className="w-full whitespace-nowrap text-sm">
           <thead>
             <tr className="border-b border-slate-100 text-left text-xs text-slate-500">
               <th className="px-5 py-3 font-medium">Customer</th>

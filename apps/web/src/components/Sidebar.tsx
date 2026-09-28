@@ -11,6 +11,7 @@ import {
   Settings,
   Shield,
   Users,
+  X,
 } from 'lucide-react'
 import { ChevronDown } from 'lucide-react'
 import { useState } from 'react'
@@ -35,21 +36,38 @@ const navItems: NavItem[] = [
 
 const adminNavItem: NavItem = { to: '/admin', label: 'Admin', icon: Shield }
 
-export function Sidebar() {
+export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { user } = useAuth()
   const items = user?.isPlatformAdmin ? [...navItems, adminNavItem] : navItems
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
 
   return (
-    <aside className="flex w-64 shrink-0 flex-col justify-between bg-gradient-to-b from-slate-900 to-brand-navy px-4 py-6">
+    <>
+      {open && <div className="fixed inset-0 z-30 bg-black/50 lg:hidden" onClick={onClose} aria-hidden="true" />}
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 flex w-64 shrink-0 flex-col justify-between overflow-y-auto bg-gradient-to-b from-slate-900 to-brand-navy px-4 py-6 transition-transform duration-200 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${
+          open ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
       <div>
-        <Logo src={logoLight} className="mb-8 ml-2 h-10" />
+        <div className="mb-8 flex items-center justify-between">
+          <Logo src={logoLight} className="ml-2 h-10" />
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close menu"
+            className="rounded-lg p-2 text-slate-400 hover:bg-white/5 hover:text-white lg:hidden"
+          >
+            <X size={18} />
+          </button>
+        </div>
         <nav className="flex flex-col gap-1">
           {items.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               end={item.end}
+              onClick={onClose}
               className={({ isActive }) =>
                 `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                   isActive
@@ -97,6 +115,7 @@ export function Sidebar() {
       </div>
 
       {showFeedbackModal && <FeedbackModal onClose={() => setShowFeedbackModal(false)} />}
-    </aside>
+      </aside>
+    </>
   )
 }

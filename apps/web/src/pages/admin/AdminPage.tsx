@@ -113,8 +113,8 @@ export function AdminPage() {
         </select>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <table className="w-full whitespace-nowrap text-sm">
           <thead>
             <tr className="border-b border-slate-100 text-left text-xs text-slate-500">
               <th className="px-5 py-3 font-medium">Company</th>

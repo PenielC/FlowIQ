@@ -18,7 +18,8 @@ export function UpcomingInvoicesCard({ invoices, isLoading }: { invoices: Invoic
       ) : invoices.length === 0 ? (
         <p className="py-6 text-center text-sm text-slate-400">No upcoming invoices.</p>
       ) : (
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full whitespace-nowrap text-sm">
           <thead>
             <tr className="text-left text-xs text-slate-500">
               <th className="pb-3 font-medium">Customer</th>
@@ -42,6 +43,7 @@ export function UpcomingInvoicesCard({ invoices, isLoading }: { invoices: Invoic
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </div>
   )
