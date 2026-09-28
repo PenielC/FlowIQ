@@ -43,7 +43,7 @@ export function Sidebar() {
   return (
     <aside className="flex w-64 shrink-0 flex-col justify-between bg-gradient-to-b from-slate-900 to-brand-navy px-4 py-6">
       <div>
-        <Logo src={logoLight} className="mb-8 ml-2" />
+        <Logo src={logoLight} className="mb-8 ml-2 h-10" />
         <nav className="flex flex-col gap-1">
           {items.map((item) => (
             <NavLink
