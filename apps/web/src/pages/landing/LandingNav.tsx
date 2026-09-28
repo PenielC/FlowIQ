@@ -6,7 +6,7 @@ export function LandingNav() {
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-brand-navy/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <Logo src={logoLight} />
+        <Logo src={logoLight} className="h-10" />
 
         <nav className="hidden items-center gap-8 md:flex">
           <a href="#top" className="flex flex-col items-center gap-1.5 text-sm font-medium text-white">
