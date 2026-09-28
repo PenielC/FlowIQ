@@ -4,9 +4,9 @@ import { Reveal } from '../../components/Reveal'
 const techStack = [
   { icon: Atom, label: 'React (Web & Mobile)', color: 'text-sky-500' },
   { icon: Layers, label: '.NET 10 (Clean Architecture)', color: 'text-violet-500' },
-  { icon: Database, label: 'PostgreSQL (Neon)', color: 'text-emerald-500' },
+  { icon: Database, label: 'PostgreSQL', color: 'text-emerald-500' },
   { icon: Package, label: 'Docker', color: 'text-blue-500' },
-  { icon: CreditCard, label: 'Stripe Billing', color: 'text-indigo-500' },
+  { icon: CreditCard, label: 'Payment Integration', color: 'text-indigo-500' },
   { icon: Cloud, label: 'Azure Ready', color: 'text-sky-600' },
 ]
 
