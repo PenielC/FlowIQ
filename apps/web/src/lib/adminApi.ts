@@ -1,5 +1,5 @@
 import { api } from './api'
-import type { AdminOverviewResponse, ApiResponse } from './types'
+import type { AdminOverviewResponse, ApiResponse, RepairCurrencyDataResponse } from './types'
 
 export async function fetchAdminOverview(
   pageNumber = 1,
@@ -33,4 +33,14 @@ export async function activateCompany(id: string) {
 export async function deactivateCompany(id: string) {
   const res = await api.post<ApiResponse<object>>(`/api/admin/companies/${id}/deactivate`)
   if (!res.data.success) throw new Error(res.data.message ?? 'Failed to deactivate company')
+}
+
+/** One-off repair of currency data written before the conversion fixes. Dry run unless told otherwise. */
+export async function repairCurrencyData(dryRun: boolean, backfillPaidInvoiceIncome: boolean) {
+  const res = await api.post<ApiResponse<RepairCurrencyDataResponse>>('/api/admin/repair-currency-data', {
+    dryRun,
+    backfillPaidInvoiceIncome,
+  })
+  if (!res.data.data) throw new Error(res.data.message ?? 'Failed to repair currency data')
+  return res.data.data
 }

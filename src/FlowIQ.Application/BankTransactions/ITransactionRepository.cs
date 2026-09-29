@@ -29,6 +29,9 @@ public interface ITransactionRepository : IRepository<Transaction>
     /// <summary>Sum of all transaction amounts strictly before <paramref name="dateUtc"/> — a baseline balance to build a running total from.</summary>
     Task<decimal> GetBalanceBeforeDateAsync(Guid companyId, DateTime dateUtc, CancellationToken cancellationToken = default);
 
+    /// <summary>Every transaction of the company, tracked (for restating in a new reporting currency).</summary>
+    Task<List<Transaction>> ListByCompanyAsync(Guid companyId, CancellationToken cancellationToken = default);
+
     Task<List<Transaction>> GetInDateRangeAsync(
         Guid companyId,
         DateTime startUtcInclusive,

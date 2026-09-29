@@ -208,6 +208,42 @@ export interface AiInsightsResponse {
 export interface ExchangeRateResponse {
   rate: number | null
   isLive: boolean
+  /** "Frankfurter" or "ExchangeRate-API"; the latter must be credited wherever its rate is shown. */
+  source: string | null
+}
+
+export interface CurrencyRateNeedResponse {
+  currency: string
+  transactionCount: number
+  invoiceCount: number
+  /** Today's rate for display; null when no source has one and the user must enter it. */
+  indicativeRate: number | null
+}
+
+export interface CurrencyChangePreviewResponse {
+  fromCurrency: string
+  toCurrency: string
+  transactionCount: number
+  invoiceCount: number
+  currencies: CurrencyRateNeedResponse[]
+}
+
+export interface CompanyRepairRowResponse {
+  companyId: string
+  companyName: string
+  currency: string
+  transactionsRestated: number
+  invoicesRestated: number
+  incomeRecorded: number
+  problem: string | null
+}
+
+export interface RepairCurrencyDataResponse {
+  dryRun: boolean
+  companies: CompanyRepairRowResponse[]
+  transactionsRestated: number
+  invoicesRestated: number
+  incomeRecorded: number
 }
 
 export interface TransactionImportRowResponse {

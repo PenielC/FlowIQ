@@ -49,11 +49,18 @@ public static class DependencyInjection
         services.AddSingleton<IFeedbackSettings, FeedbackSettings>();
         services.AddScoped<IStripeGateway, StripeGateway>();
 
-        services.AddHttpClient<IExchangeRateProvider, FrankfurterExchangeRateProvider>(client =>
+        // Frankfurter first (with history), then ExchangeRate-API for the currencies Frankfurter lacks.
+        services.AddHttpClient<FrankfurterExchangeRateProvider>(client =>
         {
-            client.BaseAddress = new Uri("https://api.frankfurter.app/");
-            client.Timeout = TimeSpan.FromSeconds(5);
+            client.BaseAddress = new Uri("https://api.frankfurter.dev/v1/");
+            client.Timeout = TimeSpan.FromSeconds(8);
         });
+        services.AddHttpClient<OpenExchangeRateApiProvider>(client =>
+        {
+            client.BaseAddress = new Uri("https://open.er-api.com/v6/");
+            client.Timeout = TimeSpan.FromSeconds(8);
+        });
+        services.AddScoped<IExchangeRateProvider, CompositeExchangeRateProvider>();
 
         services.AddHttpClient<IEmailSender, ResendEmailSender>((sp, client) =>
         {

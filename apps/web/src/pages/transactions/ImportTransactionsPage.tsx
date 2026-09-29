@@ -5,6 +5,7 @@ import { useAuth } from '../../lib/AuthContext'
 import { formatCurrency } from '../../lib/categoryDisplay'
 import { currencies } from '../../lib/currencies'
 import { fetchExchangeRate } from '../../lib/exchangeRatesApi'
+import { RateAttribution } from '../../components/RateAttribution'
 import {
   confirmTransactionImport,
   previewTransactionImport,
@@ -45,6 +46,7 @@ export function ImportTransactionsPage() {
   const [currency, setCurrency] = useState(companyCurrency)
   const [exchangeRate, setExchangeRate] = useState('')
   const [rateIsLive, setRateIsLive] = useState(true)
+  const [rateSource, setRateSource] = useState<string | null>(null)
   const [isFetchingRate, setIsFetchingRate] = useState(false)
 
   const [reviewRows, setReviewRows] = useState<ReviewRow[]>([])
@@ -74,10 +76,12 @@ export function ImportTransactionsPage() {
     fetchExchangeRate(newCurrency, companyCurrency)
       .then((res) => {
         setRateIsLive(res.isLive)
+        setRateSource(res.source)
         setExchangeRate(res.rate !== null ? String(res.rate) : '')
       })
       .catch(() => {
         setRateIsLive(false)
+        setRateSource(null)
         setExchangeRate('')
       })
       .finally(() => setIsFetchingRate(false))
@@ -282,6 +286,7 @@ export function ImportTransactionsPage() {
                     {!isFetchingRate && !rateIsLive && (
                       <p className="mt-1 text-xs text-amber-600">Couldn't fetch a live rate — please enter it manually.</p>
                     )}
+                    <RateAttribution source={rateSource} />
                   </div>
                 )}
               </div>

@@ -18,6 +18,6 @@ public class ExchangeRatesController(ISender sender) : ControllerBase
     {
         var result = await sender.Send(new GetExchangeRateQuery(from, to), cancellationToken);
 
-        return Ok(ApiResponse<ExchangeRateResponse>.Ok(new ExchangeRateResponse(result.Rate, result.IsLive)));
+        return Ok(ApiResponse<ExchangeRateResponse>.Ok(new ExchangeRateResponse(result.Rate, result.IsLive, result.Source)));
     }
 }

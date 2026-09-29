@@ -1,12 +1,13 @@
 using FlowIQ.Application.Common.Interfaces;
+using FlowIQ.Domain.Exceptions;
 using Microsoft.Extensions.Logging;
 
 namespace FlowIQ.Application.Common;
 
 /// <summary>
 /// Shared rate-resolution logic for anything that records a money amount in its own currency and needs it
-/// converted into a company's reporting currency at creation time. Never lets a missing/failed exchange rate
-/// block the caller from saving — falls back to a locked 1:1 rate and logs a warning instead.
+/// converted into a company's reporting currency at creation time. A missing rate is never guessed: the caller
+/// gets a clear error asking for the rate (it used to fall back to 1:1 silently, which turned R89 into $89).
 /// </summary>
 public static class CurrencyConversion
 {
@@ -31,10 +32,9 @@ public static class CurrencyConversion
         var liveRate = await exchangeRateProvider.GetRateAsync(recordCurrency, reportingCurrency, cancellationToken);
         if (liveRate is null)
         {
-            logger.LogWarning(
-                "Exchange rate unavailable for {From}->{To}; falling back to a 1:1 rate. The converted amount will be inaccurate until corrected.",
-                recordCurrency, reportingCurrency);
-            return 1m;
+            logger.LogWarning("No exchange rate available for {From}->{To}; asking for a manual rate.", recordCurrency, reportingCurrency);
+            throw new DomainException(
+                $"No live exchange rate is available for {recordCurrency.ToUpperInvariant()} to {reportingCurrency.ToUpperInvariant()}. Please enter the exchange rate.");
         }
 
         return liveRate.Value;

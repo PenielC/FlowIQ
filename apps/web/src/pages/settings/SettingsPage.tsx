@@ -1,6 +1,7 @@
 import { Building2, Copy, Trash2, UserPlus, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { fetchCompanyLogo, removeCompanyLogo, updateCompanyCurrency, uploadCompanyLogo } from '../../lib/companiesApi'
+import { fetchCompanyLogo, removeCompanyLogo, uploadCompanyLogo } from '../../lib/companiesApi'
+import { CurrencyChangeModal } from './CurrencyChangeModal'
 import { useAuth } from '../../lib/AuthContext'
 import { currencies } from '../../lib/currencies'
 import { fetchPendingInvitations, fetchTeamMembers, removeMember, revokeInvitation, updateMemberRole } from '../../lib/teamApi'
@@ -25,8 +26,8 @@ export function SettingsPage() {
   const canManage = user?.role === 'Owner' || user?.role === 'Admin'
   const isOwner = user?.role === 'Owner'
 
-  const [isSavingCurrency, setIsSavingCurrency] = useState(false)
-  const [currencyError, setCurrencyError] = useState<string | null>(null)
+  // The currency picked in the dropdown, waiting for confirmation (changing it converts every record).
+  const [pendingCurrency, setPendingCurrency] = useState<string | null>(null)
 
   const [members, setMembers] = useState<TeamMemberResponse[]>([])
   const [invitations, setInvitations] = useState<InvitationResponse[]>([])
@@ -101,17 +102,8 @@ export function SettingsPage() {
     }
   }
 
-  async function handleCurrencyChange(currency: string) {
-    setCurrencyError(null)
-    setIsSavingCurrency(true)
-    try {
-      await updateCompanyCurrency(currency)
-      await refreshUser()
-    } catch (err) {
-      setCurrencyError(err instanceof Error ? err.message : 'Failed to update currency')
-    } finally {
-      setIsSavingCurrency(false)
-    }
+  function handleCurrencyChange(currency: string) {
+    if (currency !== (user?.companyCurrency ?? 'USD')) setPendingCurrency(currency)
   }
 
   function refresh() {
@@ -214,7 +206,6 @@ export function SettingsPage() {
               <select
                 value={user?.companyCurrency ?? 'USD'}
                 onChange={(e) => handleCurrencyChange(e.target.value)}
-                disabled={isSavingCurrency}
                 className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm focus:border-brand-primary focus:outline-none disabled:opacity-60"
               >
                 {currencies.map((c) => (
@@ -223,7 +214,6 @@ export function SettingsPage() {
                   </option>
                 ))}
               </select>
-              {currencyError && <p className="text-xs text-red-500">{currencyError}</p>}
             </div>
           ) : (
             <span className="text-sm font-medium text-slate-500">{user?.companyCurrency ?? 'USD'}</span>
@@ -369,6 +359,14 @@ export function SettingsPage() {
             setShowInviteModal(false)
             refresh()
           }}
+        />
+      )}
+      {pendingCurrency && (
+        <CurrencyChangeModal
+          fromCurrency={user?.companyCurrency ?? 'USD'}
+          toCurrency={pendingCurrency}
+          onClose={() => setPendingCurrency(null)}
+          onChanged={refreshUser}
         />
       )}
     </div>

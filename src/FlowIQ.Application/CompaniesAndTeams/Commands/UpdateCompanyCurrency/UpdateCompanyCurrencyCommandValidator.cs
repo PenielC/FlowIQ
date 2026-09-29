@@ -7,7 +7,7 @@ public class UpdateCompanyCurrencyCommandValidator : AbstractValidator<UpdateCom
     public static readonly HashSet<string> SupportedCurrencies = new(StringComparer.OrdinalIgnoreCase)
     {
         "USD", "EUR", "GBP",
-        "KES", "NGN", "GHS", "ZAR", "UGX", "TZS", "EGP",
+        "KES", "NGN", "GHS", "ZAR", "ZWG", "UGX", "TZS", "EGP",
         "XOF", "XAF", "RWF", "ETB", "MAD", "ZMW", "BWP", "MWK",
     };
 
@@ -17,5 +17,9 @@ public class UpdateCompanyCurrencyCommandValidator : AbstractValidator<UpdateCom
         RuleFor(x => x.Currency)
             .Must(c => SupportedCurrencies.Contains(c))
             .WithMessage("Unsupported currency code.");
+        RuleForEach(x => x.ManualRates)
+            .Must(kv => kv.Key.Length == 3 && kv.Value > 0)
+            .When(x => x.ManualRates is not null)
+            .WithMessage("Each exchange rate must be greater than zero.");
     }
 }

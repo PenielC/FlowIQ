@@ -2,6 +2,7 @@ using AwesomeAssertions;
 using FlowIQ.Application.Common.Interfaces;
 using FlowIQ.Application.Invoicing;
 using FlowIQ.Application.Invoicing.Commands.CreateInvoice;
+using FlowIQ.Domain.Exceptions;
 using FlowIQ.Domain.CompaniesAndTeams;
 using FlowIQ.Domain.Invoicing;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -137,7 +138,7 @@ public class CreateInvoiceCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_WithDifferentCurrencyAndProviderUnavailable_FallsBackToRateOfOneAndStillSaves()
+    public async Task Handle_WithDifferentCurrencyAndNoRateAvailable_AsksForARateAndSavesNothing()
     {
         var company = new Company("Acme Trading"); // USD
         SetUpCompany(company);
@@ -148,10 +149,10 @@ public class CreateInvoiceCommandHandlerTests
         var command = new CreateInvoiceCommand(
             company.Id, "Export Co", SingleItem(100m), issueDate, issueDate.AddDays(14), "EUR", null, null);
 
-        var result = await CreateHandler().Handle(command, CancellationToken.None);
+        var act = () => CreateHandler().Handle(command, CancellationToken.None).AsTask();
 
-        result.AmountInReportingCurrency.Should().Be(100m);
-        _invoiceRepository.Verify(r => r.AddAsync(It.IsAny<Invoice>(), It.IsAny<CancellationToken>()), Times.Once);
-        _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        await act.Should().ThrowAsync<DomainException>().WithMessage("*enter the exchange rate*");
+        _invoiceRepository.Verify(r => r.AddAsync(It.IsAny<Invoice>(), It.IsAny<CancellationToken>()), Times.Never);
+        _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 }

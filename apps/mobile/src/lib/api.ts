@@ -60,6 +60,10 @@ api.interceptors.response.use(
       await tokenStorage.clear()
     }
 
+    // The API explains what went wrong in { message }; axios' own message is just "Request failed with status code 400".
+    const serverMessage = error.response?.data?.message
+    if (typeof serverMessage === 'string' && serverMessage) error.message = serverMessage
+
     return Promise.reject(error)
   },
 )

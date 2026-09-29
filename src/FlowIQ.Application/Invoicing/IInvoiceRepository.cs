@@ -22,6 +22,9 @@ public interface IInvoiceRepository : IRepository<Invoice>
         int count,
         CancellationToken cancellationToken = default);
 
+    /// <summary>Every invoice of the company, tracked (for restating in a new reporting currency).</summary>
+    Task<List<Invoice>> ListByCompanyAsync(Guid companyId, CancellationToken cancellationToken = default);
+
     Task<OutstandingSummary> GetOutstandingSummaryAsync(Guid companyId, CancellationToken cancellationToken = default);
 
     Task<List<InvoiceStatusTotal>> GetStatusBreakdownAsync(Guid companyId, CancellationToken cancellationToken = default);

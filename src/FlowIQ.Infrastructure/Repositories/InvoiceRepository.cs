@@ -30,6 +30,9 @@ public class InvoiceRepository(ApplicationDbContext dbContext)
             .Take(count)
             .ToListAsync(cancellationToken);
 
+    public Task<List<Invoice>> ListByCompanyAsync(Guid companyId, CancellationToken cancellationToken = default) =>
+        DbContext.Invoices.Where(i => i.CompanyId == companyId).ToListAsync(cancellationToken);
+
     public async Task<OutstandingSummary> GetOutstandingSummaryAsync(Guid companyId, CancellationToken cancellationToken = default)
     {
         var outstanding = await DbContext.Invoices

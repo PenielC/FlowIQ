@@ -1,3 +1,3 @@
 namespace FlowIQ.Contracts.ExchangeRates;
 
-public record ExchangeRateResponse(decimal? Rate, bool IsLive);
+public record ExchangeRateResponse(decimal? Rate, bool IsLive, string? Source);

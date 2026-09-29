@@ -10,10 +10,10 @@ public class GetExchangeRateQueryHandler(IExchangeRateProvider exchangeRateProvi
     {
         if (string.Equals(query.FromCurrency, query.ToCurrency, StringComparison.OrdinalIgnoreCase))
         {
-            return new ExchangeRateResult(1m, true);
+            return new ExchangeRateResult(1m, true, null);
         }
 
-        var rate = await exchangeRateProvider.GetRateAsync(query.FromCurrency, query.ToCurrency, cancellationToken);
-        return new ExchangeRateResult(rate, rate is not null);
+        var quote = await exchangeRateProvider.GetQuoteAsync(query.FromCurrency, query.ToCurrency, cancellationToken);
+        return new ExchangeRateResult(quote?.Rate, quote is not null, quote?.Source);
     }
 }

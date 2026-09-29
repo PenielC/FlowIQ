@@ -77,13 +77,25 @@ public class Invoice : BaseAuditableEntity, IAggregateRoot
     public string Currency { get; private set; } = "USD";
 
     /// <summary>
-    /// <see cref="Amount"/> converted into the company's reporting currency, using the rate locked in at creation
-    /// time. Never recomputed retroactively if the company's reporting currency changes later.
+    /// <see cref="Amount"/> converted into the company's reporting currency. Locked at creation; restated (from
+    /// <see cref="Amount"/>, at the rate on the issue date) only when the company changes its reporting currency.
     /// </summary>
     public decimal AmountInReportingCurrency { get; private set; }
 
-    /// <summary>The rate used to compute <see cref="AmountInReportingCurrency"/> at creation time.</summary>
+    /// <summary>The rate used to compute <see cref="AmountInReportingCurrency"/>.</summary>
     public decimal ExchangeRateToReportingCurrency { get; private set; }
+
+    /// <summary>Re-expresses this invoice in a (new) reporting currency, always from its original amount.</summary>
+    public void RestateInReportingCurrency(decimal exchangeRate)
+    {
+        if (exchangeRate <= 0)
+        {
+            throw new DomainException("Exchange rate must be greater than zero.");
+        }
+
+        ExchangeRateToReportingCurrency = exchangeRate;
+        AmountInReportingCurrency = Math.Round(Amount * exchangeRate, 2);
+    }
 
     public IReadOnlyCollection<InvoiceLineItem> LineItems => _lineItems.AsReadOnly();
 

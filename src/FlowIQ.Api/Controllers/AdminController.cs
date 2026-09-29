@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using FlowIQ.Application.Admin.Commands.RepairCurrencyData;
 using FlowIQ.Application.Admin.Commands.SetCompanyActiveStatus;
 using FlowIQ.Application.Admin.Commands.UpdateCompany;
 using FlowIQ.Application.Admin.Queries.GetAdminOverview;
@@ -75,6 +76,23 @@ public class AdminController(ISender sender, IPlatformAdminChecker platformAdmin
 
         await sender.Send(new SetCompanyActiveStatusCommand(id, false), cancellationToken);
         return Ok(ApiResponse<object>.Ok(new { }));
+    }
+
+    /// <summary>One-off repair of currency data written before the conversion fixes. Dry run by default.</summary>
+    [HttpPost("repair-currency-data")]
+    public async Task<ActionResult<ApiResponse<RepairCurrencyDataResponse>>> RepairCurrencyData(
+        RepairCurrencyDataRequest request, CancellationToken cancellationToken)
+    {
+        if (EnsureAdmin() is { } forbid) return forbid;
+
+        var r = await sender.Send(new RepairCurrencyDataCommand(request.DryRun, request.BackfillPaidInvoiceIncome), cancellationToken);
+        return Ok(ApiResponse<RepairCurrencyDataResponse>.Ok(new RepairCurrencyDataResponse(
+            r.DryRun,
+            r.Companies.Select(c => new CompanyRepairRowResponse(
+                c.CompanyId, c.CompanyName, c.Currency, c.TransactionsRestated, c.InvoicesRestated, c.IncomeRecorded, c.Problem)).ToList(),
+            r.TransactionsRestated,
+            r.InvoicesRestated,
+            r.IncomeRecorded)));
     }
 
     private ActionResult? EnsureAdmin()

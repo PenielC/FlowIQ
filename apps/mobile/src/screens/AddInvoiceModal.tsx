@@ -9,6 +9,7 @@ import { useState } from 'react'
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
+  Linking,
   Modal,
   Platform,
   Pressable,
@@ -41,6 +42,7 @@ export function AddInvoiceModal({ visible, onClose, onCreated }: { visible: bool
   const [currency, setCurrency] = useState(companyCurrency)
   const [exchangeRate, setExchangeRate] = useState('')
   const [rateIsLive, setRateIsLive] = useState(true)
+  const [rateSource, setRateSource] = useState<string | null>(null)
   const [isFetchingRate, setIsFetchingRate] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -70,10 +72,12 @@ export function AddInvoiceModal({ visible, onClose, onCreated }: { visible: bool
     fetchExchangeRate(newCurrency, companyCurrency)
       .then((res) => {
         setRateIsLive(res.isLive)
+        setRateSource(res.source)
         setExchangeRate(res.rate !== null ? String(res.rate) : '')
       })
       .catch(() => {
         setRateIsLive(false)
+        setRateSource(null)
         setExchangeRate('')
       })
       .finally(() => setIsFetchingRate(false))
@@ -97,7 +101,7 @@ export function AddInvoiceModal({ visible, onClose, onCreated }: { visible: bool
     }
 
     const numericRate = exchangeRate ? Number(exchangeRate) : undefined
-    if (currency !== companyCurrency && exchangeRate && (!numericRate || numericRate <= 0)) {
+    if (currency !== companyCurrency && (!numericRate || numericRate <= 0)) {
       setError('Enter a valid exchange rate.')
       return
     }
@@ -208,6 +212,11 @@ export function AddInvoiceModal({ visible, onClose, onCreated }: { visible: bool
                   {isFetchingRate && <Text style={styles.hint}>Fetching live rate…</Text>}
                   {!isFetchingRate && !rateIsLive && (
                     <Text style={styles.error}>Could not fetch a live rate — please enter it manually.</Text>
+                  )}
+                  {rateSource === 'ExchangeRate-API' && (
+                    <Text style={styles.hint} onPress={() => Linking.openURL('https://www.exchangerate-api.com')}>
+                      Rates By Exchange Rate API
+                    </Text>
                   )}
                 </>
               )}

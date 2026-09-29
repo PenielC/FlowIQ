@@ -151,4 +151,6 @@ export interface SuggestCategoryResponse {
 export interface ExchangeRateResponse {
   rate: number | null
   isLive: boolean
+  /** "Frankfurter" or "ExchangeRate-API"; the latter must be credited wherever its rate is shown. */
+  source: string | null
 }

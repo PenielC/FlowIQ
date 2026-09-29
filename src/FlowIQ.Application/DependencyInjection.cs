@@ -1,4 +1,5 @@
 using System.Reflection;
+using FlowIQ.Application.Common;
 using FlowIQ.Application.Common.Behaviors;
 using FluentValidation;
 using Mediator;
@@ -17,6 +18,8 @@ public static class DependencyInjection
             options.ServiceLifetime = ServiceLifetime.Scoped;
             options.PipelineBehaviors = [typeof(ValidationBehavior<,>)];
         });
+
+        services.AddScoped<ReportingCurrencyConverter>();
 
         return services;
     }

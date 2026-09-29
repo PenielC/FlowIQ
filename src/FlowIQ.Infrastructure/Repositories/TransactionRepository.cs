@@ -23,6 +23,9 @@ public class TransactionRepository(ApplicationDbContext dbContext)
         return (items, totalCount);
     }
 
+    public Task<List<Transaction>> ListByCompanyAsync(Guid companyId, CancellationToken cancellationToken = default) =>
+        DbContext.Transactions.Where(t => t.CompanyId == companyId).ToListAsync(cancellationToken);
+
     public Task<List<Transaction>> GetRecentByCompanyAsync(Guid companyId, int count, CancellationToken cancellationToken = default) =>
         DbContext.Transactions
             .Where(t => t.CompanyId == companyId)

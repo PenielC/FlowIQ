@@ -109,7 +109,7 @@ public class CreateTransactionCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_WithDifferentCurrencyAndProviderUnavailable_FallsBackToRateOfOneAndStillSaves()
+    public async Task Handle_WithDifferentCurrencyAndNoRateAvailable_AsksForARateAndSavesNothing()
     {
         var company = new Company("Acme Trading"); // USD
         SetUpCompany(company);
@@ -119,10 +119,11 @@ public class CreateTransactionCommandHandlerTests
         var command = new CreateTransactionCommand(
             company.Id, "Export sale", TransactionCategory.Sales, 100m, DateTime.UtcNow, TransactionStatus.Completed, "EUR", null);
 
-        var result = await CreateHandler().Handle(command, CancellationToken.None);
+        // It used to save at a silent 1:1 rate, which is how R89 became $89.
+        var act = () => CreateHandler().Handle(command, CancellationToken.None).AsTask();
 
-        result.AmountInReportingCurrency.Should().Be(100m);
-        _transactionRepository.Verify(r => r.AddAsync(It.IsAny<Transaction>(), It.IsAny<CancellationToken>()), Times.Once);
-        _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        await act.Should().ThrowAsync<DomainException>().WithMessage("*enter the exchange rate*");
+        _transactionRepository.Verify(r => r.AddAsync(It.IsAny<Transaction>(), It.IsAny<CancellationToken>()), Times.Never);
+        _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 }

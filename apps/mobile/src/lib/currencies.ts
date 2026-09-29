@@ -6,6 +6,7 @@ export const currencies: { code: string; name: string }[] = [
   { code: 'NGN', name: 'Nigerian Naira' },
   { code: 'GHS', name: 'Ghanaian Cedi' },
   { code: 'ZAR', name: 'South African Rand' },
+  { code: 'ZWG', name: 'Zimbabwe Gold' },
   { code: 'UGX', name: 'Ugandan Shilling' },
   { code: 'TZS', name: 'Tanzanian Shilling' },
   { code: 'EGP', name: 'Egyptian Pound' },

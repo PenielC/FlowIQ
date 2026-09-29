@@ -1,5 +1,6 @@
 using FlowIQ.Application.CompaniesAndTeams.Commands.RemoveCompanyLogo;
 using FlowIQ.Application.CompaniesAndTeams.Commands.UpdateCompanyCurrency;
+using FlowIQ.Application.CompaniesAndTeams.Queries.GetCurrencyChangePreview;
 using FlowIQ.Application.CompaniesAndTeams.Commands.UploadCompanyLogo;
 using FlowIQ.Application.CompaniesAndTeams.Queries.GetCompanyLogo;
 using FlowIQ.Contracts.CompaniesAndTeams;
@@ -46,11 +47,22 @@ public class CompaniesController(ISender sender) : ControllerBase
         return Ok(ApiResponse<object>.Ok(new { }));
     }
 
+    [HttpGet("currency/preview")]
+    [Authorize(Roles = "Owner")]
+    public async Task<ActionResult<ApiResponse<CurrencyChangePreviewResponse>>> PreviewCurrencyChange(
+        [FromQuery] string currency, CancellationToken cancellationToken)
+    {
+        var p = await sender.Send(new GetCurrencyChangePreviewQuery(CurrentCompanyId, currency), cancellationToken);
+        return Ok(ApiResponse<CurrencyChangePreviewResponse>.Ok(new CurrencyChangePreviewResponse(
+            p.FromCurrency, p.ToCurrency, p.TransactionCount, p.InvoiceCount,
+            p.Currencies.Select(c => new CurrencyRateNeedResponse(c.Currency, c.TransactionCount, c.InvoiceCount, c.IndicativeRate)).ToList())));
+    }
+
     [HttpPut("currency")]
     [Authorize(Roles = "Owner")]
     public async Task<ActionResult<ApiResponse<object>>> UpdateCurrency(UpdateCurrencyRequest request, CancellationToken cancellationToken)
     {
-        await sender.Send(new UpdateCompanyCurrencyCommand(CurrentCompanyId, request.Currency), cancellationToken);
+        await sender.Send(new UpdateCompanyCurrencyCommand(CurrentCompanyId, request.Currency, request.ManualRates), cancellationToken);
         return Ok(ApiResponse<object>.Ok(new { }));
     }
 

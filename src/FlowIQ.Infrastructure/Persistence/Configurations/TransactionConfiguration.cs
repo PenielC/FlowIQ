@@ -1,4 +1,5 @@
 using FlowIQ.Domain.BankTransactions;
+using FlowIQ.Domain.Invoicing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -19,5 +20,9 @@ public class TransactionConfiguration : IEntityTypeConfiguration<Transaction>
         builder.Property(t => t.ExchangeRateToReportingCurrency).HasPrecision(18, 6);
 
         builder.HasIndex(t => new { t.CompanyId, t.TransactionDateUtc });
+
+        // The income recorded for a paid invoice: at most one per invoice. Deleting the invoice keeps the income.
+        builder.HasOne<Invoice>().WithMany().HasForeignKey(t => t.InvoiceId).OnDelete(DeleteBehavior.SetNull);
+        builder.HasIndex(t => t.InvoiceId).IsUnique().HasFilter("\"InvoiceId\" IS NOT NULL");
     }
 }
