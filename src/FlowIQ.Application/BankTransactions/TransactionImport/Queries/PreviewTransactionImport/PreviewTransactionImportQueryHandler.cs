@@ -59,7 +59,7 @@ public class PreviewTransactionImportQueryHandler(
                 return new TransactionImportRowPreview(r.rowNumber, r.date, r.description, r.amount, TransactionCategory.Other, false, r.error);
             }
 
-            var suggestion = TransactionCategorySuggester.Suggest(r.description);
+            var suggestion = TransactionCategorySuggester.Suggest(r.description, r.amount.Value > 0);
             var isDuplicate = existingByKey.Contains((DateOnly.FromDateTime(r.date.Value), r.amount.Value, r.description.Trim().ToLowerInvariant()));
 
             return new TransactionImportRowPreview(r.rowNumber, r.date, r.description, r.amount, suggestion.Category, isDuplicate, null);

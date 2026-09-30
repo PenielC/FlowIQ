@@ -29,7 +29,7 @@ public class RepairCurrencyDataCommandHandlerTests
 
     private RepairCurrencyDataCommandHandler Handler() => new(
         _companies.Object, _transactions.Object, _invoices.Object,
-        new ReportingCurrencyConverter(_transactions.Object, _invoices.Object, _rates.Object), _unitOfWork.Object);
+        new ReportingCurrencyConverter(_transactions.Object, _invoices.Object, FlowIQ.Tests.Unit.Common.NoPlannedDraws.Repository(), _rates.Object), _unitOfWork.Object);
 
     private void Records(List<Transaction> transactions, List<Invoice> invoices)
     {

@@ -71,4 +71,15 @@ public class InvoiceRepository(ApplicationDbContext dbContext)
 
         return new AtRiskSummary(atRisk.Count, atRisk.Sum());
     }
+
+    public Task<List<Invoice>> GetPendingDueBetweenAsync(Guid companyId, DateTime fromUtc, DateTime toUtc, CancellationToken cancellationToken = default)
+    {
+        var from = fromUtc.Date;
+        var toExclusive = toUtc.Date.AddDays(1);
+        return DbContext.Invoices
+            .AsNoTracking()
+            .Where(i => i.CompanyId == companyId && i.Status == InvoiceStatus.Sent && i.DueDateUtc >= from && i.DueDateUtc < toExclusive)
+            .OrderBy(i => i.DueDateUtc)
+            .ToListAsync(cancellationToken);
+    }
 }

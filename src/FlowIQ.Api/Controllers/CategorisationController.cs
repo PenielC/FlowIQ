@@ -16,7 +16,7 @@ public class CategorisationController(ISender sender) : ControllerBase
     public async Task<ActionResult<ApiResponse<SuggestCategoryResponse>>> Suggest(
         SuggestCategoryRequest request, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new SuggestCategoryQuery(request.Description), cancellationToken);
+        var result = await sender.Send(new SuggestCategoryQuery(request.Description, request.IsIncome), cancellationToken);
 
         return Ok(ApiResponse<SuggestCategoryResponse>.Ok(new SuggestCategoryResponse(result.Category.ToString(), result.Confidence)));
     }

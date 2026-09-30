@@ -10,6 +10,7 @@ import { ResetPasswordPage } from './pages/auth/ResetPasswordPage'
 import { AdminPage } from './pages/admin/AdminPage'
 import { CustomersPage } from './pages/customers/CustomersPage'
 import { DashboardPage } from './pages/DashboardPage'
+import { ForecastSetupPage } from './pages/forecasting/ForecastSetupPage'
 import { ForecastingPage } from './pages/forecasting/ForecastingPage'
 import { InvoicesPage } from './pages/invoices/InvoicesPage'
 import { LandingPage } from './pages/LandingPage'
@@ -36,6 +37,7 @@ function App() {
           <Route path="transactions/import" element={<ImportTransactionsPage />} />
           <Route path="invoices" element={<InvoicesPage />} />
           <Route path="forecasting" element={<ForecastingPage />} />
+          <Route path="setup/forecast" element={<ForecastSetupPage />} />
           <Route path="customers" element={<CustomersPage />} />
           <Route path="subscriptions" element={<SubscriptionsPage />} />
           <Route path="reports" element={<ReportsPage />} />

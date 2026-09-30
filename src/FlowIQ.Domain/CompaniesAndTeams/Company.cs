@@ -19,6 +19,14 @@ public class Company : BaseAuditableEntity, IAggregateRoot
     public string Currency { get; private set; } = "USD";
     public bool IsActive { get; private set; } = true;
 
+    /// <summary>
+    /// When the owner answered the forecast setup (planned personal withdrawals, or "none"). Null until then, which
+    /// is what makes the dashboard keep asking.
+    /// </summary>
+    public DateTime? ForecastSetupCompletedAtUtc { get; private set; }
+
+    public void CompleteForecastSetup(DateTime completedAtUtc) => ForecastSetupCompletedAtUtc ??= completedAtUtc;
+
     public void Rename(string name)
     {
         if (string.IsNullOrWhiteSpace(name))

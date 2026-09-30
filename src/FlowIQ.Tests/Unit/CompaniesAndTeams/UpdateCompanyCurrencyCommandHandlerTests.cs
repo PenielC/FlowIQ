@@ -21,7 +21,7 @@ public class UpdateCompanyCurrencyCommandHandlerTests
     private readonly Mock<IInvoiceRepository> _invoiceRepository = new();
     private readonly Mock<IExchangeRateProvider> _rates = new();
 
-    private ReportingCurrencyConverter Converter() => new(_transactionRepository.Object, _invoiceRepository.Object, _rates.Object);
+    private ReportingCurrencyConverter Converter() => new(_transactionRepository.Object, _invoiceRepository.Object, FlowIQ.Tests.Unit.Common.NoPlannedDraws.Repository(), _rates.Object);
 
     private void SetUpRecords(Guid companyId, List<Transaction> transactions, List<Invoice>? invoices = null)
     {

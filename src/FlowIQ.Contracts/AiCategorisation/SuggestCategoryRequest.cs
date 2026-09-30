@@ -1,3 +1,4 @@
 namespace FlowIQ.Contracts.AiCategorisation;
 
-public record SuggestCategoryRequest(string Description);
+/// <param name="IsIncome">True for money in, false for money out; narrows the suggestion when known.</param>
+public record SuggestCategoryRequest(string Description, bool? IsIncome = null);

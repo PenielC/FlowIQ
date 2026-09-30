@@ -46,6 +46,8 @@ public class TransactionRepository(ApplicationDbContext dbContext)
 
         var transactions = await DbContext.Transactions
             .Where(t => t.CompanyId == companyId && t.TransactionDateUtc >= monthStart && t.TransactionDateUtc < monthEnd)
+            // Owner drawings/contributions are not revenue or business expenses.
+            .Where(t => t.Category != TransactionCategory.OwnerDrawings && t.Category != TransactionCategory.OwnerContribution)
             .Select(t => t.AmountInReportingCurrency)
             .ToListAsync(cancellationToken);
 

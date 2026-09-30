@@ -18,7 +18,7 @@ public class ReportingCurrencyConverterTests
     private readonly Mock<IExchangeRateProvider> _rates = new();
     private readonly Guid _companyId = Guid.NewGuid();
 
-    private ReportingCurrencyConverter Converter() => new(_transactions.Object, _invoices.Object, _rates.Object);
+    private ReportingCurrencyConverter Converter() => new(_transactions.Object, _invoices.Object, NoPlannedDraws.Repository(), _rates.Object);
 
     private static DateTime Day(int d) => new(2026, 9, d, 12, 0, 0, DateTimeKind.Utc);
 

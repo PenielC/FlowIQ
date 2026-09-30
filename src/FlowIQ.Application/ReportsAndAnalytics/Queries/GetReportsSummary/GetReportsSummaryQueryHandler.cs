@@ -1,6 +1,7 @@
 using FlowIQ.Application.BankTransactions;
 using FlowIQ.Application.Common.Interfaces;
 using FlowIQ.Application.Invoicing;
+using FlowIQ.Domain.BankTransactions;
 using Mediator;
 
 namespace FlowIQ.Application.ReportsAndAnalytics.Queries.GetReportsSummary;
@@ -29,7 +30,7 @@ public class GetReportsSummaryQueryHandler(
 
         var transactions = await transactionRepository.GetInDateRangeAsync(query.CompanyId, periodStart, periodEnd, cancellationToken);
         var categoryBreakdown = transactions
-            .Where(t => t.AmountInReportingCurrency < 0)
+            .Where(t => t.AmountInReportingCurrency < 0 && !t.Category.IsOwnerEquity())
             .GroupBy(t => t.Category)
             .Select(g => new CategoryTotal(g.Key, -g.Sum(t => t.AmountInReportingCurrency)))
             .OrderByDescending(c => c.Total)

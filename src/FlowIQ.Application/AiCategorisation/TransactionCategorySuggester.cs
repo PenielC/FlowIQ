@@ -7,12 +7,20 @@ public record CategorySuggestion(TransactionCategory Category, double Confidence
 /// <summary>
 /// Keyword-scoring heuristic classifier — not a call to an external AI/ML service.
 /// Each category has a set of trigger words; the description is scored against every
-/// category and the highest-scoring one wins. Falls back to Other when nothing matches.
+/// category and the highest-scoring one wins (ties go to the category listed first).
+/// Falls back to Other when nothing matches. When the direction is known (money in or out),
+/// only categories that fit it are considered, so an expense is never suggested as Sales.
 /// </summary>
 public static class TransactionCategorySuggester
 {
+    // Order matters for ties: the owner categories come first so "rent for home" is a drawing, not business rent.
     private static readonly Dictionary<TransactionCategory, string[]> Keywords = new()
     {
+        [TransactionCategory.OwnerDrawings] =
+            ["school fees", "school fee", "tuition", "personal", "household", "home", "house rent", "family", "drawings",
+                "owner draw", "for self"],
+        [TransactionCategory.OwnerContribution] =
+            ["owner contribution", "capital", "from owner", "own funds", "own money", "personal funds", "injection"],
         [TransactionCategory.Sales] =
             ["sale", "sales", "invoice", "payment received", "customer", "client", "revenue", "order", "deposit"],
         [TransactionCategory.Payroll] =
@@ -26,7 +34,11 @@ public static class TransactionCategorySuggester
                 "insurance", "fuel", "transport", "delivery", "stationery", "repair", "consulting", "legal fees"],
     };
 
-    public static CategorySuggestion Suggest(string description)
+    private static readonly HashSet<TransactionCategory> IncomeCategories =
+        [TransactionCategory.Sales, TransactionCategory.OwnerContribution, TransactionCategory.Other];
+
+    /// <param name="isIncome">True for money in, false for money out, null when unknown.</param>
+    public static CategorySuggestion Suggest(string description, bool? isIncome = null)
     {
         var normalized = (description ?? string.Empty).ToLowerInvariant();
 
@@ -35,6 +47,11 @@ public static class TransactionCategorySuggester
 
         foreach (var (category, keywords) in Keywords)
         {
+            if (isIncome is { } income && IncomeCategories.Contains(category) != income)
+            {
+                continue;
+            }
+
             var matches = keywords.Where(k => normalized.Contains(k)).ToList();
             if (matches.Count > bestMatches.Count)
             {

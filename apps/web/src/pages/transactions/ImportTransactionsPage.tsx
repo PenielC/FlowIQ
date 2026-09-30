@@ -2,7 +2,7 @@ import { AlertTriangle, ArrowLeft, Copy, Upload } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../lib/AuthContext'
-import { formatCurrency } from '../../lib/categoryDisplay'
+import { categoryLabel, formatCurrency } from '../../lib/categoryDisplay'
 import { currencies } from '../../lib/currencies'
 import { fetchExchangeRate } from '../../lib/exchangeRatesApi'
 import { RateAttribution } from '../../components/RateAttribution'
@@ -350,7 +350,7 @@ export function ImportTransactionsPage() {
                       >
                         {transactionCategories.map((c) => (
                           <option key={c} value={c}>
-                            {c}
+                            {categoryLabel(c)}
                           </option>
                         ))}
                       </select>

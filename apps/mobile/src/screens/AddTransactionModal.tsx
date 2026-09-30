@@ -1,6 +1,7 @@
 import { colors } from '@/constants/colors'
 import { useAuth } from '@/lib/AuthContext'
 import { suggestCategory } from '@/lib/categorisationApi'
+import { categoryLabel } from '@/lib/categoryDisplay'
 import { currencies } from '@/lib/currencies'
 import { fetchExchangeRate } from '@/lib/exchangeRatesApi'
 import { createTransaction } from '@/lib/transactionsApi'
@@ -64,7 +65,7 @@ export function AddTransactionModal({ visible, onClose, onCreated }: { visible: 
     if (description.trim().length < 3) return
     let cancelled = false
     const timer = setTimeout(() => {
-      suggestCategory(description)
+      suggestCategory(description, type === 'income')
         .then((res) => {
           if (cancelled || res.confidence <= 0) return
           setSuggestedCategory(res.category)
@@ -78,7 +79,7 @@ export function AddTransactionModal({ visible, onClose, onCreated }: { visible: 
       cancelled = true
       clearTimeout(timer)
     }
-  }, [description, categoryTouched])
+  }, [description, categoryTouched, type])
 
   async function handleSubmit() {
     setError(null)
@@ -162,7 +163,7 @@ export function AddTransactionModal({ visible, onClose, onCreated }: { visible: 
                     }}
                     style={[styles.categoryChip, category === c && styles.categoryChipActive]}
                   >
-                    <Text style={[styles.categoryChipText, category === c && { color: colors.textPrimary }]}>{c}</Text>
+                    <Text style={[styles.categoryChipText, category === c && { color: colors.textPrimary }]}>{categoryLabel(c)}</Text>
                   </Pressable>
                 ))}
               </View>

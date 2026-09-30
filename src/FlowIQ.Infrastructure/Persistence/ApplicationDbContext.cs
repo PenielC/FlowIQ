@@ -2,6 +2,7 @@ using System.Reflection;
 using FlowIQ.Application.Common.Interfaces;
 using FlowIQ.Domain.Authentication;
 using FlowIQ.Domain.BankTransactions;
+using FlowIQ.Domain.CashFlowForecasting;
 using FlowIQ.Domain.CompaniesAndTeams;
 using FlowIQ.Domain.Common;
 using FlowIQ.Domain.Customers;
@@ -20,6 +21,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Transaction> Transactions => Set<Transaction>();
     public DbSet<Invoice> Invoices => Set<Invoice>();
     public DbSet<Customer> Customers => Set<Customer>();
+    public DbSet<PlannedOwnerDraw> PlannedOwnerDraws => Set<PlannedOwnerDraw>();
     public DbSet<Invitation> Invitations => Set<Invitation>();
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
     public DbSet<ProcessedWebhookEvent> ProcessedWebhookEvents => Set<ProcessedWebhookEvent>();

@@ -33,7 +33,16 @@ export interface PagedResult<T> {
   hasNextPage: boolean
 }
 
-export const transactionCategories = ['Sales', 'OperatingExpense', 'RentAndLease', 'Payroll', 'Utilities', 'Other'] as const
+export const transactionCategories = [
+  'Sales',
+  'OperatingExpense',
+  'RentAndLease',
+  'Payroll',
+  'Utilities',
+  'Other',
+  'OwnerDrawings',
+  'OwnerContribution',
+] as const
 export type TransactionCategory = (typeof transactionCategories)[number]
 
 export interface TransactionResponse {

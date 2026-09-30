@@ -1,3 +1,4 @@
+using FlowIQ.Domain.BankTransactions;
 using Mediator;
 
 namespace FlowIQ.Application.BankTransactions.Queries.GetDashboardSummary;
@@ -48,8 +49,10 @@ public class GetDashboardSummaryQueryHandler(ITransactionRepository transactionR
 
     private static TransactionMonthTotals Totals(IEnumerable<Domain.BankTransactions.Transaction> transactions)
     {
-        var income = transactions.Where(t => t.AmountInReportingCurrency > 0).Sum(t => t.AmountInReportingCurrency);
-        var expenses = -transactions.Where(t => t.AmountInReportingCurrency < 0).Sum(t => t.AmountInReportingCurrency);
+        // Owner drawings/contributions move cash but are neither revenue nor business expenses.
+        var business = transactions.Where(t => !t.Category.IsOwnerEquity()).ToList();
+        var income = business.Where(t => t.AmountInReportingCurrency > 0).Sum(t => t.AmountInReportingCurrency);
+        var expenses = -business.Where(t => t.AmountInReportingCurrency < 0).Sum(t => t.AmountInReportingCurrency);
         return new TransactionMonthTotals(income, expenses);
     }
 

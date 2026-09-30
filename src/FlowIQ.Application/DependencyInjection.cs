@@ -1,4 +1,5 @@
 using System.Reflection;
+using FlowIQ.Application.CashFlowForecasting;
 using FlowIQ.Application.Common;
 using FlowIQ.Application.Common.Behaviors;
 using FluentValidation;
@@ -20,6 +21,7 @@ public static class DependencyInjection
         });
 
         services.AddScoped<ReportingCurrencyConverter>();
+        services.AddScoped<CashFlowForecaster>();
 
         return services;
     }

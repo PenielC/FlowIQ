@@ -1,6 +1,7 @@
 import { Sparkles, X } from 'lucide-react'
 import { useEffect, useState, type FormEvent } from 'react'
 import { suggestCategory } from '../../lib/categorisationApi'
+import { CATEGORY_HINTS, categoryLabel } from '../../lib/categoryDisplay'
 import { useAuth } from '../../lib/AuthContext'
 import { currencies } from '../../lib/currencies'
 import { fetchExchangeRate } from '../../lib/exchangeRatesApi'
@@ -52,7 +53,7 @@ export function AddTransactionModal({ onClose, onCreated }: { onClose: () => voi
     if (description.trim().length < 3) return
     let cancelled = false
     const timer = setTimeout(() => {
-      suggestCategory(description)
+      suggestCategory(description, type === 'income')
         .then((res) => {
           if (cancelled || res.confidence <= 0) return
           setSuggestedCategory(res.category)
@@ -66,7 +67,7 @@ export function AddTransactionModal({ onClose, onCreated }: { onClose: () => voi
       cancelled = true
       clearTimeout(timer)
     }
-  }, [description, categoryTouched])
+  }, [description, categoryTouched, type])
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -164,7 +165,7 @@ export function AddTransactionModal({ onClose, onCreated }: { onClose: () => voi
               >
                 {transactionCategories.map((c) => (
                   <option key={c} value={c}>
-                    {c}
+                    {categoryLabel(c)}
                   </option>
                 ))}
               </select>
@@ -191,6 +192,8 @@ export function AddTransactionModal({ onClose, onCreated }: { onClose: () => voi
               />
             </div>
           </div>
+
+          {CATEGORY_HINTS[category] && <p className="-mt-2 text-xs text-slate-500">{CATEGORY_HINTS[category]}</p>}
 
           <div className="grid grid-cols-2 gap-3">
             <div>

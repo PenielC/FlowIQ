@@ -6,11 +6,12 @@ import { fetchForecast } from '../lib/forecastApi'
 import { fetchAiInsights } from '../lib/insightsApi'
 import { fetchInvoiceSummary } from '../lib/invoicesApi'
 import { fetchDashboardSummary } from '../lib/transactionsApi'
-import type { CashFlowPointResponse, DashboardSummaryResponse, InsightResponse, InvoiceSummaryResponse } from '../lib/types'
+import type { CashFlowForecastResponse, DashboardSummaryResponse, InsightResponse, InvoiceSummaryResponse } from '../lib/types'
 import { AiCtaBanner } from './dashboard/AiCtaBanner'
 import { AiInsightsCard } from './dashboard/AiInsightsCard'
 import { DashboardHeader, getThisMonthRange, type DateRangeValue } from './dashboard/DashboardHeader'
 import { ForecastChart } from './dashboard/ForecastChart'
+import { ForecastSetupPrompt } from './dashboard/ForecastSetupPrompt'
 import { RecentTransactionsCard } from './dashboard/RecentTransactionsCard'
 import { StatCard } from './dashboard/StatCard'
 import { UpcomingInvoicesCard } from './dashboard/UpcomingInvoicesCard'
@@ -26,7 +27,7 @@ export function DashboardPage() {
   const [dateRange, setDateRange] = useState<DateRangeValue>(getThisMonthRange)
   const [summary, setSummary] = useState<DashboardSummaryResponse | null>(null)
   const [invoiceSummary, setInvoiceSummary] = useState<InvoiceSummaryResponse | null>(null)
-  const [forecastPoints, setForecastPoints] = useState<CashFlowPointResponse[]>([])
+  const [forecast, setForecast] = useState<CashFlowForecastResponse | null>(null)
   const [insights, setInsights] = useState<InsightResponse[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isInvoicesLoading, setIsInvoicesLoading] = useState(true)
@@ -52,8 +53,8 @@ export function DashboardPage() {
       .finally(() => setIsInvoicesLoading(false))
 
     fetchForecast()
-      .then((res) => setForecastPoints(res.points))
-      .catch(() => setForecastPoints([]))
+      .then(setForecast)
+      .catch(() => setForecast(null))
       .finally(() => setIsForecastLoading(false))
 
     fetchAiInsights()
@@ -65,6 +66,8 @@ export function DashboardPage() {
   return (
     <div className="flex flex-col gap-6">
       <DashboardHeader value={dateRange} onChange={handleDateRangeChange} />
+
+      <ForecastSetupPrompt />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
@@ -106,7 +109,7 @@ export function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <ForecastChart points={forecastPoints} isLoading={isForecastLoading} currency={currency} />
+          <ForecastChart forecast={forecast} isLoading={isForecastLoading} currency={currency} />
         </div>
         <AiInsightsCard insights={insights} isLoading={isInsightsLoading} />
       </div>

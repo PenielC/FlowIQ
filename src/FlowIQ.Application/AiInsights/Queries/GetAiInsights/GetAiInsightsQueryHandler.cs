@@ -1,7 +1,9 @@
 using FlowIQ.Application.BankTransactions;
+using FlowIQ.Application.CashFlowForecasting;
 using FlowIQ.Application.Common.Interfaces;
 using FlowIQ.Application.Invoicing;
 using FlowIQ.Domain.BankTransactions;
+using FlowIQ.Domain.CompaniesAndTeams;
 using Mediator;
 
 namespace FlowIQ.Application.AiInsights.Queries.GetAiInsights;
@@ -14,9 +16,12 @@ namespace FlowIQ.Application.AiInsights.Queries.GetAiInsights;
 public class GetAiInsightsQueryHandler(
     ITransactionRepository transactionRepository,
     IInvoiceRepository invoiceRepository,
+    IRepository<Company> companyRepository,
+    CashFlowForecaster forecaster,
     IDateTimeProvider dateTimeProvider) : IQueryHandler<GetAiInsightsQuery, AiInsightsResult>
 {
     private const int HistoryDays = 30;
+    private const int UpcomingDrawWindowDays = 14;
     private const int AtRiskWindowDays = 7;
     private const decimal MinCategorySpendToFlag = 20m;
     private const decimal MinSpikePercent = 15m;
@@ -26,33 +31,53 @@ public class GetAiInsightsQueryHandler(
         var insights = new List<Insight>();
         var now = dateTimeProvider.UtcNow.Date;
 
-        await AddForecastInsight(query.CompanyId, now, insights, cancellationToken);
-        await AddAtRiskInvoicesInsight(query.CompanyId, now, insights, cancellationToken);
+        var currency = (await companyRepository.GetByIdAsync(query.CompanyId, cancellationToken))?.Currency ?? "USD";
+
+        await AddForecastInsights(query.CompanyId, now, currency, insights, cancellationToken);
+        await AddAtRiskInvoicesInsight(query.CompanyId, now, currency, insights, cancellationToken);
         await AddCategorySpikeInsight(query.CompanyId, now, insights, cancellationToken);
 
         return new AiInsightsResult(insights);
     }
 
-    private async Task AddForecastInsight(Guid companyId, DateTime now, List<Insight> insights, CancellationToken cancellationToken)
+    private async Task AddForecastInsights(Guid companyId, DateTime now, string currency, List<Insight> insights, CancellationToken cancellationToken)
     {
-        var currentBalance = await transactionRepository.GetBalanceAsync(companyId, cancellationToken);
-        var baseline = await transactionRepository.GetBalanceBeforeDateAsync(companyId, now.AddDays(-HistoryDays), cancellationToken);
-        var netChangeOverHistory = currentBalance - baseline;
+        var forecast = await forecaster.ForecastAsync(companyId, HistoryDays, HistoryDays, cancellationToken);
+        var current = forecast.CurrentBalance;
 
-        if (currentBalance == 0) return;
+        // A squeeze: the projected balance goes below zero at some point in the next month.
+        if (forecast.LowestBalance is < 0 && forecast.LowestBalanceDateUtc is { } lowDate)
+        {
+            insights.Add(new Insight(
+                $"Cash could run short around {lowDate:MMM d}.",
+                $"Your balance is projected to dip to {currency} {forecast.LowestBalance.Value:N2}. Plan ahead or move a payment.",
+                InsightTone.Warning));
+        }
 
-        // Projecting the same trend forward for another HistoryDays gives the same net change again.
-        var percent = Math.Round(netChangeOverHistory / Math.Abs(currentBalance) * 100, 1);
+        var upcomingDraw = forecast.Events.FirstOrDefault(e =>
+            e.Kind == ForecastEventKind.OwnerDraw && e.DateUtc <= now.AddDays(UpcomingDrawWindowDays));
+        if (upcomingDraw is not null)
+        {
+            insights.Add(new Insight(
+                $"{upcomingDraw.Label} ({currency} {-upcomingDraw.Amount:N2}) is planned for {upcomingDraw.DateUtc:MMM d}.",
+                "A planned personal withdrawal, already included in your forecast.",
+                InsightTone.Caution));
+        }
+
+        var projected = forecast.Points.LastOrDefault()?.Forecast;
+        if (current == 0 || projected is null) return;
+
+        var percent = Math.Round((projected.Value - current) / Math.Abs(current) * 100, 1);
         if (percent == 0) return;
 
         var direction = percent > 0 ? "increase" : "decrease";
         insights.Add(new Insight(
             $"Cash flow is forecasted to {direction} by {Math.Abs(percent)}% next month.",
-            "Based on your transaction history over the last 30 days.",
+            "Based on your last 30 days, planned withdrawals and invoices due.",
             percent > 0 ? InsightTone.Positive : InsightTone.Warning));
     }
 
-    private async Task AddAtRiskInvoicesInsight(Guid companyId, DateTime now, List<Insight> insights, CancellationToken cancellationToken)
+    private async Task AddAtRiskInvoicesInsight(Guid companyId, DateTime now, string currency, List<Insight> insights, CancellationToken cancellationToken)
     {
         var atRisk = await invoiceRepository.GetAtRiskSummaryAsync(companyId, now.AddDays(AtRiskWindowDays), cancellationToken);
         if (atRisk.Count == 0) return;
@@ -60,7 +85,7 @@ public class GetAiInsightsQueryHandler(
         var noun = atRisk.Count == 1 ? "customer is" : "customers are";
         insights.Add(new Insight(
             $"{atRisk.Count} {noun} at risk of paying late.",
-            $"Total outstanding: ${atRisk.TotalAmount:N2}",
+            $"Total outstanding: {currency} {atRisk.TotalAmount:N2}",
             InsightTone.Warning));
     }
 
@@ -101,7 +126,7 @@ public class GetAiInsightsQueryHandler(
 
     private static Dictionary<TransactionCategory, decimal> ExpenseTotalsByCategory(List<Transaction> transactions) =>
         transactions
-            .Where(t => t.AmountInReportingCurrency < 0)
+            .Where(t => t.AmountInReportingCurrency < 0 && !t.Category.IsOwnerEquity())
             .GroupBy(t => t.Category)
             .ToDictionary(g => g.Key, g => -g.Sum(t => t.AmountInReportingCurrency));
 

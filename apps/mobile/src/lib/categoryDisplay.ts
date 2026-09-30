@@ -7,6 +7,8 @@ const CATEGORY_LABELS: Record<string, string> = {
   Payroll: 'Payroll',
   Utilities: 'Utilities',
   Other: 'Other',
+  OwnerDrawings: 'Owner Drawings',
+  OwnerContribution: 'Owner Contribution',
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -16,6 +18,8 @@ const CATEGORY_COLORS: Record<string, string> = {
   Payroll: colors.purple,
   Utilities: colors.teal,
   Other: colors.textMuted,
+  OwnerDrawings: '#D97706',
+  OwnerContribution: '#0284C7',
 }
 
 export function categoryLabel(category: string) {

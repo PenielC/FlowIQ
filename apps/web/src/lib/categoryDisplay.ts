@@ -5,6 +5,14 @@ const CATEGORY_LABELS: Record<string, string> = {
   Payroll: 'Payroll',
   Utilities: 'Utilities',
   Other: 'Other',
+  OwnerDrawings: 'Owner Drawings',
+  OwnerContribution: 'Owner Contribution',
+}
+
+/** Short help shown when an owner category is picked, since these are the unfamiliar ones. */
+export const CATEGORY_HINTS: Record<string, string> = {
+  OwnerDrawings: 'Money you take out for personal or household costs, like school fees or home rent. Not a business expense.',
+  OwnerContribution: 'Money you put into the business from your own pocket. Not revenue.',
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -14,6 +22,8 @@ const CATEGORY_COLORS: Record<string, string> = {
   Payroll: 'bg-violet-100 text-violet-600',
   Utilities: 'bg-teal-100 text-teal-600',
   Other: 'bg-slate-100 text-slate-600',
+  OwnerDrawings: 'bg-amber-100 text-amber-700',
+  OwnerContribution: 'bg-sky-100 text-sky-700',
 }
 
 export function categoryLabel(category: string) {

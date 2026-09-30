@@ -6,7 +6,7 @@ public class SuggestCategoryQueryHandler : IQueryHandler<SuggestCategoryQuery, S
 {
     public ValueTask<SuggestCategoryResult> Handle(SuggestCategoryQuery query, CancellationToken cancellationToken)
     {
-        var suggestion = TransactionCategorySuggester.Suggest(query.Description);
+        var suggestion = TransactionCategorySuggester.Suggest(query.Description, query.IsIncome);
         return ValueTask.FromResult(new SuggestCategoryResult(suggestion.Category, suggestion.Confidence));
     }
 }

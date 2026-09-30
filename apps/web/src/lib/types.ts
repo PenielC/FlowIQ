@@ -66,7 +66,16 @@ export interface PagedResult<T> {
   hasNextPage: boolean
 }
 
-export const transactionCategories = ['Sales', 'OperatingExpense', 'RentAndLease', 'Payroll', 'Utilities', 'Other'] as const
+export const transactionCategories = [
+  'Sales',
+  'OperatingExpense',
+  'RentAndLease',
+  'Payroll',
+  'Utilities',
+  'Other',
+  'OwnerDrawings',
+  'OwnerContribution',
+] as const
 export type TransactionCategory = (typeof transactionCategories)[number]
 
 export interface TransactionResponse {
@@ -154,8 +163,50 @@ export interface CashFlowPointResponse {
   forecast: number | null
 }
 
+export interface ForecastEventResponse {
+  dateUtc: string
+  label: string
+  /** In the reporting currency; negative is money going out. */
+  amount: number
+  kind: 'OwnerDraw' | 'InvoiceDue'
+}
+
 export interface CashFlowForecastResponse {
   points: CashFlowPointResponse[]
+  events: ForecastEventResponse[]
+  currentBalance: number
+  lowestBalance: number | null
+  lowestBalanceDateUtc: string | null
+}
+
+export const drawFrequencies = ['Monthly', 'SelectedMonths', 'Weekly', 'Once'] as const
+export type DrawFrequency = (typeof drawFrequencies)[number]
+
+export interface OwnerDrawResponse {
+  id: string
+  name: string
+  amount: number
+  currency: string
+  amountInReportingCurrency: number
+  frequency: DrawFrequency
+  nextDateUtc: string
+  months: number[]
+}
+
+export interface OwnerDrawsResponse {
+  setupCompleted: boolean
+  draws: OwnerDrawResponse[]
+}
+
+export interface SaveOwnerDrawRequest {
+  name: string
+  amount: number
+  currency: string
+  exchangeRate?: number
+  frequency: DrawFrequency
+  /** yyyy-mm-dd */
+  nextDateUtc: string
+  months?: number[]
 }
 
 export interface SuggestCategoryResponse {

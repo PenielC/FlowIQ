@@ -90,4 +90,30 @@ public class GetDashboardSummaryQueryHandlerTests
         result.RevenueChangePercent.Should().Be(100.0m); // (1000-500)/500*100
         result.ExpensesChangePercent.Should().BeNull(); // previous period had no expenses
     }
+
+    [Fact]
+    public async Task Handle_OwnerDrawingsAndContributions_AreNotRevenueOrExpenses()
+    {
+        var companyId = Guid.NewGuid();
+        var start = new DateTime(2026, 9, 1, 0, 0, 0, DateTimeKind.Utc);
+        var end = new DateTime(2026, 9, 30, 0, 0, 0, DateTimeKind.Utc);
+        var rangeEndExclusive = end.AddDays(1);
+
+        Transaction Owner(decimal amount, TransactionCategory category) =>
+            new(companyId, "Owner", category, amount, start, TransactionStatus.Completed, "USD", amount, 1m);
+
+        _transactionRepository.Setup(r => r.GetBalanceBeforeDateAsync(companyId, rangeEndExclusive, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1000m);
+        _transactionRepository.Setup(r => r.GetInDateRangeAsync(companyId, start, rangeEndExclusive, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([MakeTx(start, 500m), MakeTx(start, -200m),
+                Owner(-300m, TransactionCategory.OwnerDrawings), Owner(400m, TransactionCategory.OwnerContribution)]);
+        _transactionRepository.Setup(r => r.GetInDateRangeAsync(companyId, It.Is<DateTime>(d => d < start), start, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        _transactionRepository.Setup(r => r.GetRecentByCompanyAsync(companyId, 4, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+
+        var result = await CreateHandler().Handle(new GetDashboardSummaryQuery(companyId, start, end), CancellationToken.None);
+
+        result.MonthlyRevenue.Should().Be(500m);
+        result.MonthlyExpenses.Should().Be(200m);
+    }
 }

@@ -1,7 +1,9 @@
 using FlowIQ.Application.BankTransactions;
+using FlowIQ.Application.CashFlowForecasting;
 using FlowIQ.Application.Common.Interfaces;
 using FlowIQ.Application.Invoicing;
 using FlowIQ.Domain.BankTransactions;
+using FlowIQ.Domain.CashFlowForecasting;
 using FlowIQ.Domain.Exceptions;
 using FlowIQ.Domain.Invoicing;
 
@@ -29,6 +31,7 @@ public record RestatementSummary(int TransactionsRestated, int InvoicesRestated)
 public class ReportingCurrencyConverter(
     ITransactionRepository transactionRepository,
     IInvoiceRepository invoiceRepository,
+    IPlannedOwnerDrawRepository plannedOwnerDrawRepository,
     IExchangeRateProvider exchangeRateProvider)
 {
     public async Task<CurrencyChangePreview> PreviewAsync(
@@ -36,10 +39,12 @@ public class ReportingCurrencyConverter(
     {
         var transactions = await transactionRepository.ListByCompanyAsync(companyId, cancellationToken);
         var invoices = await invoiceRepository.ListByCompanyAsync(companyId, cancellationToken);
+        var draws = await plannedOwnerDrawRepository.ListByCompanyAsync(companyId, cancellationToken);
         var to = toCurrency.ToUpperInvariant();
 
         var needs = new List<CurrencyRateNeed>();
-        foreach (var currency in transactions.Select(t => t.Currency).Concat(invoices.Select(i => i.Currency)).Distinct().Order())
+        var currencies = transactions.Select(t => t.Currency).Concat(invoices.Select(i => i.Currency)).Concat(draws.Select(d => d.Currency));
+        foreach (var currency in currencies.Distinct().Order())
         {
             if (currency == to) continue;
             var rate = await exchangeRateProvider.GetRateAsync(currency, to, cancellationToken);
@@ -59,7 +64,8 @@ public class ReportingCurrencyConverter(
     {
         var transactions = await transactionRepository.ListByCompanyAsync(companyId, cancellationToken);
         var invoices = await invoiceRepository.ListByCompanyAsync(companyId, cancellationToken);
-        return await RestateAsync(transactions, invoices, toCurrency, manualRates, cancellationToken);
+        var draws = await plannedOwnerDrawRepository.ListByCompanyAsync(companyId, cancellationToken);
+        return await RestateAsync(transactions, invoices, toCurrency, manualRates, cancellationToken, draws);
     }
 
     /// <summary>Restates the given records. Rates are all resolved first; nothing changes if any is missing.</summary>
@@ -68,15 +74,20 @@ public class ReportingCurrencyConverter(
         IReadOnlyCollection<Invoice> invoices,
         string toCurrency,
         IReadOnlyDictionary<string, decimal>? manualRates,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        IReadOnlyCollection<PlannedOwnerDraw>? plannedDraws = null)
     {
         var to = toCurrency.ToUpperInvariant();
+        var draws = plannedDraws ?? [];
+        // Planned draws are future amounts, so they are converted at today's rate.
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var manual = (manualRates ?? new Dictionary<string, decimal>())
             .ToDictionary(kv => kv.Key.ToUpperInvariant(), kv => kv.Value);
 
         // (currency, date) of every record, so each currency's history is fetched once for its whole date span.
         var dated = transactions.Select(t => (t.Currency, Date: DateOnly.FromDateTime(t.TransactionDateUtc)))
             .Concat(invoices.Select(i => (i.Currency, Date: DateOnly.FromDateTime(i.IssueDateUtc))))
+            .Concat(draws.Select(d => (d.Currency, Date: today)))
             .ToList();
 
         var rateFor = new Dictionary<string, Func<DateOnly, decimal>>();
@@ -128,6 +139,11 @@ public class ReportingCurrencyConverter(
         foreach (var i in invoices)
         {
             i.RestateInReportingCurrency(rateFor[i.Currency](DateOnly.FromDateTime(i.IssueDateUtc)));
+        }
+
+        foreach (var d in draws)
+        {
+            d.RestateInReportingCurrency(rateFor[d.Currency](today));
         }
 
         return new RestatementSummary(transactions.Count, invoices.Count);

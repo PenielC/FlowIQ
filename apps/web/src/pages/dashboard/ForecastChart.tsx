@@ -3,13 +3,14 @@ import {
   Area,
   AreaChart,
   CartesianGrid,
+  ReferenceDot,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from 'recharts'
 import { currencySymbol, formatCurrency } from '../../lib/categoryDisplay'
-import type { CashFlowPointResponse } from '../../lib/types'
+import type { CashFlowForecastResponse, ForecastEventResponse } from '../../lib/types'
 
 function abbreviatedAmount(value: number, symbol: string) {
   const sign = value < 0 ? '-' : ''
@@ -25,35 +26,57 @@ function ChartTooltip({
   payload,
   label,
   currency,
+  eventsByDate,
 }: {
   active?: boolean
   payload?: { value: number }[]
   label?: string
   currency: string
+  eventsByDate: Map<string, ForecastEventResponse[]>
 }) {
   if (!active || !payload?.length) return null
   const value = payload[0]?.value
+  const events = (label && eventsByDate.get(label)) || []
   return (
     <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs shadow-md">
       <p className="font-medium text-slate-500">{label}</p>
       <p className="text-sm font-bold text-slate-900">{formatCurrency(value, currency)}</p>
+      {events.map((e, i) => (
+        <p key={i} className={e.amount < 0 ? 'text-amber-700' : 'text-emerald-700'}>
+          {e.kind === 'InvoiceDue' ? `Invoice due: ${e.label}` : e.label} ({e.amount < 0 ? '-' : '+'}
+          {formatCurrency(Math.abs(e.amount), currency)})
+        </p>
+      ))}
     </div>
   )
 }
 
 export function ForecastChart({
-  points,
+  forecast,
   isLoading,
   forecastDays = 30,
   currency,
 }: {
-  points: CashFlowPointResponse[]
+  forecast: CashFlowForecastResponse | null
   isLoading: boolean
   forecastDays?: number
   currency: string
 }) {
+  const points = forecast?.points ?? []
   const chartData = points.map((p) => ({ date: shortDate(p.dateUtc), actual: p.actual, forecast: p.forecast }))
   const symbol = currencySymbol(currency)
+
+  const eventsByDate = new Map<string, ForecastEventResponse[]>()
+  for (const e of forecast?.events ?? []) {
+    const key = shortDate(e.dateUtc)
+    eventsByDate.set(key, [...(eventsByDate.get(key) ?? []), e])
+  }
+
+  // Only mark the lowest point when it is a real dip below today's balance.
+  const dip =
+    forecast && forecast.lowestBalance !== null && forecast.lowestBalanceDateUtc && forecast.lowestBalance < forecast.currentBalance
+      ? { date: shortDate(forecast.lowestBalanceDateUtc), value: forecast.lowestBalance, belowZero: forecast.lowestBalance < 0 }
+      : null
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -101,7 +124,7 @@ export function ForecastChart({
                 axisLine={false}
                 tick={{ fill: '#94a3b8', fontSize: 12 }}
               />
-              <Tooltip content={<ChartTooltip currency={currency} />} />
+              <Tooltip content={<ChartTooltip currency={currency} eventsByDate={eventsByDate} />} />
               <Area
                 type="monotone"
                 dataKey="actual"
@@ -121,10 +144,27 @@ export function ForecastChart({
                 connectNulls
                 dot={false}
               />
+              {dip && (
+                <ReferenceDot
+                  x={dip.date}
+                  y={dip.value}
+                  r={6}
+                  fill={dip.belowZero ? '#dc2626' : '#f59e0b'}
+                  stroke="#fff"
+                  strokeWidth={2}
+                />
+              )}
             </AreaChart>
           </ResponsiveContainer>
         )}
       </div>
+      {!isLoading && dip && (
+        <p className={`mt-3 flex items-center gap-2 text-xs ${dip.belowZero ? 'text-red-600' : 'text-amber-700'}`}>
+          <span className={`h-2.5 w-2.5 rounded-full ${dip.belowZero ? 'bg-red-600' : 'bg-amber-500'}`} />
+          Lowest point: {formatCurrency(dip.value, currency)} around {dip.date}
+          {dip.belowZero ? ', you could run short' : ''}
+        </p>
+      )}
     </div>
   )
 }

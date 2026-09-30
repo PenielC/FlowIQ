@@ -22,7 +22,8 @@ export function RegisterPage() {
     setIsSubmitting(true)
     try {
       await register({ companyName, firstName, lastName, email, password })
-      navigate('/dashboard')
+      // One quick question about personal withdrawals, so the first forecast they see is a believable one.
+      navigate('/setup/forecast')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed')
     } finally {

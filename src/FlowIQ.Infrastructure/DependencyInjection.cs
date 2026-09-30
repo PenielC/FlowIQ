@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using FlowIQ.Application.Authentication;
 using FlowIQ.Application.BankTransactions;
+using FlowIQ.Application.CashFlowForecasting;
 using FlowIQ.Application.Common.Interfaces;
 using FlowIQ.Application.CompaniesAndTeams;
 using FlowIQ.Application.Customers;
@@ -41,6 +42,7 @@ public static class DependencyInjection
         services.AddScoped<IInvitationRepository, InvitationRepository>();
         services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
         services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+        services.AddScoped<IPlannedOwnerDrawRepository, PlannedOwnerDrawRepository>();
         services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
