@@ -6,6 +6,8 @@ using FlowIQ.Application.Common.Interfaces;
 using FlowIQ.Application.CompaniesAndTeams;
 using FlowIQ.Application.Customers;
 using FlowIQ.Application.Invoicing;
+using FlowIQ.Application.Invoicing.Emails;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using FlowIQ.Application.StripeSubscriptions;
 using FlowIQ.Infrastructure.Authentication;
 using FlowIQ.Infrastructure.Common;
@@ -43,6 +45,9 @@ public static class DependencyInjection
         services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
         services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
         services.AddScoped<IPlannedOwnerDrawRepository, PlannedOwnerDrawRepository>();
+        services.AddScoped<IInvoiceEmailRepository, InvoiceEmailRepository>();
+        services.AddScoped<IInvoiceReminderStore, InvoiceReminderStore>();
+        services.TryAddSingleton(TimeProvider.System);
         services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
@@ -64,12 +69,20 @@ public static class DependencyInjection
         });
         services.AddScoped<IExchangeRateProvider, CompositeExchangeRateProvider>();
 
-        services.AddHttpClient<IEmailSender, ResendEmailSender>((sp, client) =>
+        if (!string.IsNullOrWhiteSpace(configuration["Email:SmtpHost"]))
         {
-            client.BaseAddress = new Uri("https://api.resend.com/");
-            var apiKey = sp.GetRequiredService<IConfiguration>()["Email:ResendApiKey"];
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
-        });
+            // Local testing against a catch-all inbox (Mailpit); production leaves this unset and uses Resend.
+            services.AddScoped<IEmailSender, SmtpEmailSender>();
+        }
+        else
+        {
+            services.AddHttpClient<IEmailSender, ResendEmailSender>((sp, client) =>
+            {
+                client.BaseAddress = new Uri("https://api.resend.com/");
+                var apiKey = sp.GetRequiredService<IConfiguration>()["Email:ResendApiKey"];
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+            });
+        }
 
         return services;
     }

@@ -1,6 +1,7 @@
 using System.Reflection;
 using FlowIQ.Application.CashFlowForecasting;
 using FlowIQ.Application.Common;
+using FlowIQ.Application.Invoicing.Emails;
 using FlowIQ.Application.Common.Behaviors;
 using FluentValidation;
 using Mediator;
@@ -22,6 +23,8 @@ public static class DependencyInjection
 
         services.AddScoped<ReportingCurrencyConverter>();
         services.AddScoped<CashFlowForecaster>();
+        services.AddScoped<InvoiceMailer>();
+        services.AddScoped<InvoiceReminderRunner>();
 
         return services;
     }

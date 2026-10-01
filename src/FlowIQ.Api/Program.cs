@@ -19,6 +19,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+// Follows up unpaid invoices by email for businesses that turned reminders on (see Reminders:* settings).
+builder.Services.AddHostedService<FlowIQ.Api.BackgroundJobs.InvoiceReminderBackgroundService>();
 
 builder.Services.AddHealthChecks();
 

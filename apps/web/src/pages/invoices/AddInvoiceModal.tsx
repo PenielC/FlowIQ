@@ -17,6 +17,7 @@ export function AddInvoiceModal({ onClose, onCreated }: { onClose: () => void; o
   const { user } = useAuth()
   const companyCurrency = user?.companyCurrency ?? 'USD'
   const [customerName, setCustomerName] = useState('')
+  const [customerEmail, setCustomerEmail] = useState('')
   const [lineItems, setLineItems] = useState<LineItemRow[]>([{ description: '', amount: '' }])
   const [notes, setNotes] = useState('')
   const [issueDate, setIssueDate] = useState(() => new Date().toISOString().slice(0, 10))
@@ -99,6 +100,7 @@ export function AddInvoiceModal({ onClose, onCreated }: { onClose: () => void; o
         currency,
         exchangeRate: currency === companyCurrency ? undefined : numericRate,
         notes: notes.trim() || undefined,
+        customerEmail: customerEmail.trim() || undefined,
       })
       onCreated()
     } catch (err) {
@@ -123,7 +125,26 @@ export function AddInvoiceModal({ onClose, onCreated }: { onClose: () => void; o
             <label htmlFor="customerName" className="mb-1 block text-sm font-medium text-slate-700">
               Customer
             </label>
-            <CustomerPicker id="customerName" value={customerName} onChange={setCustomerName} />
+            <CustomerPicker
+              id="customerName"
+              value={customerName}
+              onChange={setCustomerName}
+              onPick={(c) => c.email && setCustomerEmail(c.email)}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="customerEmail" className="mb-1 block text-sm font-medium text-slate-700">
+              Customer email <span className="font-normal text-slate-400">(optional, for emailing it and reminders)</span>
+            </label>
+            <input
+              id="customerEmail"
+              type="email"
+              value={customerEmail}
+              onChange={(e) => setCustomerEmail(e.target.value)}
+              placeholder="accounts@customer.com"
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-brand-primary focus:outline-none"
+            />
           </div>
 
           <div>

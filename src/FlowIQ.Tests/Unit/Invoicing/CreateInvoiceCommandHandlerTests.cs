@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using FlowIQ.Application.Common.Interfaces;
+using FlowIQ.Application.Customers;
 using FlowIQ.Application.Invoicing;
 using FlowIQ.Application.Invoicing.Commands.CreateInvoice;
 using FlowIQ.Domain.Exceptions;
@@ -14,12 +15,14 @@ namespace FlowIQ.Tests.Unit.Invoicing;
 public class CreateInvoiceCommandHandlerTests
 {
     private readonly Mock<IInvoiceRepository> _invoiceRepository = new();
+    private readonly Mock<ICustomerRepository> _customerRepository = new();
     private readonly Mock<IRepository<Company>> _companyRepository = new();
     private readonly Mock<IExchangeRateProvider> _exchangeRateProvider = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
 
     private CreateInvoiceCommandHandler CreateHandler() => new(
         _invoiceRepository.Object,
+        _customerRepository.Object,
         _companyRepository.Object,
         _exchangeRateProvider.Object,
         _unitOfWork.Object,

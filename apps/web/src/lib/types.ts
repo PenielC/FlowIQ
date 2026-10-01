@@ -128,6 +128,46 @@ export interface InvoiceResponse {
   amountInReportingCurrency: number
   lineItems: InvoiceLineItemResponse[]
   notes: string | null
+  /** Where the invoice and its reminders are emailed; null until someone adds it. */
+  customerEmail: string | null
+  /** True when this invoice is left out of automatic reminders. */
+  remindersPaused: boolean
+}
+
+export interface InvoiceEmailResponse {
+  id: string
+  kind: 'Invoice' | 'Reminder'
+  reminderDay: number | null
+  toEmail: string
+  status: 'Sent' | 'Failed' | 'Skipped'
+  error: string | null
+  atUtc: string
+}
+
+export interface ReminderSettingsResponse {
+  enabled: boolean
+  days: number[]
+}
+
+export interface ReminderRunResponse {
+  markedOverdue: number
+  sent: number
+  failed: number
+  skipped: number
+}
+
+export interface PublicInvoiceResponse {
+  businessName: string
+  logoDataUrl: string | null
+  invoiceNumber: string
+  customerName: string
+  issueDateUtc: string
+  dueDateUtc: string
+  status: string
+  currency: string
+  amount: number
+  lineItems: InvoiceLineItemResponse[]
+  notes: string | null
 }
 
 export interface InvoiceSummaryResponse {

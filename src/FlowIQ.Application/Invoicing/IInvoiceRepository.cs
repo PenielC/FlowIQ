@@ -32,6 +32,9 @@ public interface IInvoiceRepository : IRepository<Invoice>
     /// <summary>Unpaid invoices (Sent or Overdue) due on or before <paramref name="dueOnOrBeforeUtc"/> — i.e. already overdue or due soon.</summary>
     Task<AtRiskSummary> GetAtRiskSummaryAsync(Guid companyId, DateTime dueOnOrBeforeUtc, CancellationToken cancellationToken = default);
 
+    /// <summary>The invoice behind a customer's "View invoice" link, or null.</summary>
+    Task<Invoice?> GetByPublicTokenAsync(string token, CancellationToken cancellationToken = default);
+
     /// <summary>Sent (not overdue, not draft) invoices due between the two dates inclusive: the income the forecast can count on.</summary>
     Task<List<Invoice>> GetPendingDueBetweenAsync(Guid companyId, DateTime fromUtc, DateTime toUtc, CancellationToken cancellationToken = default);
 }

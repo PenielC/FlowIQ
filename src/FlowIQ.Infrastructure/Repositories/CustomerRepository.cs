@@ -22,4 +22,10 @@ public class CustomerRepository(ApplicationDbContext dbContext)
 
         return (items, totalCount);
     }
+
+    public Task<Customer?> FindByNameAsync(Guid companyId, string name, CancellationToken cancellationToken = default)
+    {
+        var lowered = name.Trim().ToLower();
+        return DbContext.Customers.FirstOrDefaultAsync(c => c.CompanyId == companyId && c.Name.ToLower() == lowered, cancellationToken);
+    }
 }

@@ -9,4 +9,5 @@ public record CreateInvoiceRequest(
     DateTime DueDateUtc,
     string Currency,
     decimal? ExchangeRate,
-    string? Notes);
+    string? Notes,
+    string? CustomerEmail = null);

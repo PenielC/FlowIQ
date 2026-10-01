@@ -6,10 +6,13 @@ export function CustomerPicker({
   id,
   value,
   onChange,
+  onPick,
 }: {
   id: string
   value: string
   onChange: (value: string) => void
+  /** Called when a saved customer is chosen from the list (e.g. to fill in their email). */
+  onPick?: (customer: CustomerResponse) => void
 }) {
   const [customers, setCustomers] = useState<CustomerResponse[]>([])
   const [isOpen, setIsOpen] = useState(false)
@@ -58,6 +61,7 @@ export function CustomerPicker({
               type="button"
               onClick={() => {
                 onChange(customer.name)
+                onPick?.(customer)
                 setIsOpen(false)
               }}
               className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-50"

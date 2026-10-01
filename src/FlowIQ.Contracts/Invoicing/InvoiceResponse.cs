@@ -12,4 +12,6 @@ public record InvoiceResponse(
     string Currency,
     decimal AmountInReportingCurrency,
     IReadOnlyCollection<InvoiceLineItemResponse> LineItems,
-    string? Notes);
+    string? Notes,
+    string? CustomerEmail = null,
+    bool RemindersPaused = false);

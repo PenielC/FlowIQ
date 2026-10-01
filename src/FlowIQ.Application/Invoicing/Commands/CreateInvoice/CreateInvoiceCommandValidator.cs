@@ -21,5 +21,6 @@ public class CreateInvoiceCommandValidator : AbstractValidator<CreateInvoiceComm
             .Must(c => UpdateCompanyCurrencyCommandValidator.SupportedCurrencies.Contains(c))
             .WithMessage("Unsupported currency code.");
         RuleFor(x => x.ExchangeRate).GreaterThan(0m).When(x => x.ExchangeRate.HasValue);
+        RuleFor(x => x.CustomerEmail).EmailAddress().MaximumLength(256).When(x => !string.IsNullOrWhiteSpace(x.CustomerEmail));
     }
 }

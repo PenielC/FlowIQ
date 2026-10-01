@@ -26,10 +26,6 @@ public class MarkInvoicePaidCommandHandler(
         await transactionRepository.AddAsync(Transaction.ForPaidInvoice(invoice, dateTimeProvider.UtcNow), cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new InvoiceResult(
-            invoice.Id, invoice.CustomerName, invoice.Amount, invoice.IssueDateUtc, invoice.DueDateUtc, invoice.Status,
-            invoice.Currency, invoice.AmountInReportingCurrency,
-            invoice.LineItems.Select(li => new InvoiceLineItemResult(li.Id, li.Description, li.Amount)).ToList(),
-            invoice.Notes);
+        return InvoiceResult.From(invoice);
     }
 }

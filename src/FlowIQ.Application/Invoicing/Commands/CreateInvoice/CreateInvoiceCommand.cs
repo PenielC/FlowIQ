@@ -12,4 +12,5 @@ public record CreateInvoiceCommand(
     DateTime DueDateUtc,
     string Currency,
     decimal? ExchangeRate,
-    string? Notes) : ICommand<InvoiceResult>;
+    string? Notes,
+    string? CustomerEmail = null) : ICommand<InvoiceResult>;

@@ -17,6 +17,9 @@ public class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
         builder.Property(i => i.AmountInReportingCurrency).HasPrecision(18, 2);
         builder.Property(i => i.ExchangeRateToReportingCurrency).HasPrecision(18, 6);
         builder.Property(i => i.Notes).HasMaxLength(2000);
+        builder.Property(i => i.CustomerEmail).HasMaxLength(256);
+        builder.Property(i => i.PublicToken).HasMaxLength(64);
+        builder.HasIndex(i => i.PublicToken).IsUnique().HasFilter("\"PublicToken\" IS NOT NULL");
 
         builder.HasMany(i => i.LineItems)
             .WithOne()

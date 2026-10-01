@@ -1,5 +1,6 @@
 using FlowIQ.Application.Common;
 using FlowIQ.Application.Common.Interfaces;
+using FlowIQ.Application.Customers;
 using FlowIQ.Domain.CompaniesAndTeams;
 using FlowIQ.Domain.Exceptions;
 using FlowIQ.Domain.Invoicing;
@@ -10,6 +11,7 @@ namespace FlowIQ.Application.Invoicing.Commands.CreateInvoice;
 
 public class CreateInvoiceCommandHandler(
     IInvoiceRepository invoiceRepository,
+    ICustomerRepository customerRepository,
     IRepository<Company> companyRepository,
     IExchangeRateProvider exchangeRateProvider,
     IUnitOfWork unitOfWork,
@@ -34,13 +36,18 @@ public class CreateInvoiceCommandHandler(
             rate,
             command.Notes);
 
+        // The email to send the invoice and its reminders to: as given, else the saved customer's.
+        var email = command.CustomerEmail;
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            email = (await customerRepository.FindByNameAsync(command.CompanyId, command.CustomerName, cancellationToken))?.Email;
+        }
+
+        invoice.SetCustomerEmail(email);
+
         await invoiceRepository.AddAsync(invoice, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new InvoiceResult(
-            invoice.Id, invoice.CustomerName, invoice.Amount, invoice.IssueDateUtc, invoice.DueDateUtc, invoice.Status,
-            invoice.Currency, invoice.AmountInReportingCurrency,
-            invoice.LineItems.Select(li => new InvoiceLineItemResult(li.Id, li.Description, li.Amount)).ToList(),
-            invoice.Notes);
+        return InvoiceResult.From(invoice);
     }
 }

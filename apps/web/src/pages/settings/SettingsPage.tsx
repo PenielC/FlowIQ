@@ -7,6 +7,7 @@ import { currencies } from '../../lib/currencies'
 import { fetchPendingInvitations, fetchTeamMembers, removeMember, revokeInvitation, updateMemberRole } from '../../lib/teamApi'
 import { teamRoles, type InvitationResponse, type TeamMemberResponse } from '../../lib/types'
 import { InviteMemberModal } from './InviteMemberModal'
+import { InvoiceRemindersCard } from './InvoiceRemindersCard'
 
 const MAX_LOGO_SIZE_BYTES = 2 * 1024 * 1024
 const ALLOWED_LOGO_TYPES = ['image/png', 'image/jpeg', 'image/webp']
@@ -138,7 +139,7 @@ export function SettingsPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-900">Settings</h1>
-        <p className="text-sm text-slate-500">Manage your team.</p>
+        <p className="text-sm text-slate-500">Manage your business, payment reminders and team.</p>
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -220,6 +221,8 @@ export function SettingsPage() {
           )}
         </div>
       </div>
+
+      <InvoiceRemindersCard />
 
       <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div className="flex items-center justify-between border-b border-slate-100 p-5">

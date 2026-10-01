@@ -10,4 +10,7 @@ public interface ICustomerRepository : IRepository<Customer>
         int pageNumber,
         int pageSize,
         CancellationToken cancellationToken = default);
+
+    /// <summary>A customer of the company with exactly this name (ignoring case), if any.</summary>
+    Task<Customer?> FindByNameAsync(Guid companyId, string name, CancellationToken cancellationToken = default);
 }

@@ -19,3 +19,17 @@ export function invoiceStatusLabel(status: string) {
 export function invoiceStatusColor(status: string) {
   return STATUS_COLORS[status] ?? 'bg-slate-50 text-slate-500'
 }
+
+export function invoiceNumber(id: string) {
+  return `INV-${id.slice(0, 8).toUpperCase()}`
+}
+
+/** "3 days overdue", "Due today", "Due in 5 days"; nothing once it's paid. */
+export function dueDateNote(invoice: { status: string; dueDateUtc: string }) {
+  if (invoice.status === 'Paid') return null
+
+  const daysUntilDue = Math.ceil((new Date(invoice.dueDateUtc).getTime() - Date.now()) / 86400000)
+  if (daysUntilDue < 0) return { text: `${Math.abs(daysUntilDue)} day${Math.abs(daysUntilDue) === 1 ? '' : 's'} overdue`, tone: 'text-red-600' }
+  if (daysUntilDue === 0) return { text: 'Due today', tone: 'text-amber-600' }
+  return { text: `Due in ${daysUntilDue} day${daysUntilDue === 1 ? '' : 's'}`, tone: 'text-slate-500' }
+}

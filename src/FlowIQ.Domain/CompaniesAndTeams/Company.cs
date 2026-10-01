@@ -27,6 +27,29 @@ public class Company : BaseAuditableEntity, IAggregateRoot
 
     public void CompleteForecastSetup(DateTime completedAtUtc) => ForecastSetupCompletedAtUtc ??= completedAtUtc;
 
+    /// <summary>Whether unpaid invoices are followed up by email. Off until an owner or admin turns it on.</summary>
+    public bool ReminderEnabled { get; private set; }
+
+    /// <summary>Days after the due date on which a reminder goes out, e.g. 1, 7 and 14.</summary>
+    public List<int> ReminderDays { get; private set; } = [1, 7, 14];
+
+    public void SetReminderSettings(bool enabled, IReadOnlyCollection<int> days)
+    {
+        var cleaned = (days ?? []).Distinct().Order().ToList();
+        if (cleaned.Count is 0 or > 5)
+        {
+            throw new DomainException("Choose between 1 and 5 reminder days.");
+        }
+
+        if (cleaned.Any(d => d is < 1 or > 365))
+        {
+            throw new DomainException("Reminder days must be between 1 and 365 days after the due date.");
+        }
+
+        ReminderEnabled = enabled;
+        ReminderDays = cleaned;
+    }
+
     public void Rename(string name)
     {
         if (string.IsNullOrWhiteSpace(name))

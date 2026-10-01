@@ -20,6 +20,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
     public DbSet<Transaction> Transactions => Set<Transaction>();
     public DbSet<Invoice> Invoices => Set<Invoice>();
+    public DbSet<InvoiceEmail> InvoiceEmails => Set<InvoiceEmail>();
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<PlannedOwnerDraw> PlannedOwnerDraws => Set<PlannedOwnerDraw>();
     public DbSet<Invitation> Invitations => Set<Invitation>();

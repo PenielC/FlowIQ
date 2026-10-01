@@ -72,6 +72,9 @@ public class InvoiceRepository(ApplicationDbContext dbContext)
         return new AtRiskSummary(atRisk.Count, atRisk.Sum());
     }
 
+    public Task<Invoice?> GetByPublicTokenAsync(string token, CancellationToken cancellationToken = default) =>
+        DbContext.Invoices.FirstOrDefaultAsync(i => i.PublicToken == token, cancellationToken);
+
     public Task<List<Invoice>> GetPendingDueBetweenAsync(Guid companyId, DateTime fromUtc, DateTime toUtc, CancellationToken cancellationToken = default)
     {
         var from = fromUtc.Date;

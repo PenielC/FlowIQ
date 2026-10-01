@@ -5,6 +5,7 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 import { AcceptInvitationPage } from './pages/auth/AcceptInvitationPage'
 import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage'
 import { LoginPage } from './pages/auth/LoginPage'
+import { PublicInvoicePage } from './pages/invoices/PublicInvoicePage'
 import { RegisterPage } from './pages/auth/RegisterPage'
 import { ResetPasswordPage } from './pages/auth/ResetPasswordPage'
 import { AdminPage } from './pages/admin/AdminPage'
@@ -25,6 +26,7 @@ function App() {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/i/:token" element={<PublicInvoicePage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/accept-invitation" element={<AcceptInvitationPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />

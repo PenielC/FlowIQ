@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using FlowIQ.Domain.Common;
 using FlowIQ.Domain.Exceptions;
 
@@ -100,6 +101,47 @@ public class Invoice : BaseAuditableEntity, IAggregateRoot
     public IReadOnlyCollection<InvoiceLineItem> LineItems => _lineItems.AsReadOnly();
 
     public string? Notes { get; private set; }
+
+    /// <summary>Where the invoice and its reminders are emailed. Optional: without it, nothing is sent.</summary>
+    public string? CustomerEmail { get; private set; }
+
+    /// <summary>Set on an invoice that shouldn't be chased (an agreed delay, a sensitive customer).</summary>
+    public bool RemindersPaused { get; private set; }
+
+    /// <summary>
+    /// The secret in the customer's "View invoice" link. Created the first time the invoice is emailed, so
+    /// invoices that were never sent have no public link at all.
+    /// </summary>
+    public string? PublicToken { get; private set; }
+
+    public bool IsUnpaid => Status is InvoiceStatus.Sent or InvoiceStatus.Overdue;
+
+    public void SetCustomerEmail(string? email)
+    {
+        var trimmed = email?.Trim();
+        CustomerEmail = string.IsNullOrEmpty(trimmed) ? null : trimmed.ToLowerInvariant();
+    }
+
+    public void SetRemindersPaused(bool paused) => RemindersPaused = paused;
+
+    public string EnsurePublicToken()
+    {
+        PublicToken ??= Convert.ToBase64String(RandomNumberGenerator.GetBytes(24))
+            .Replace('+', '-').Replace('/', '_').TrimEnd('=');
+        return PublicToken;
+    }
+
+    /// <summary>A sent invoice whose due date has passed becomes Overdue. Returns whether it changed.</summary>
+    public bool MarkOverdueIfPastDue(DateTime todayUtc)
+    {
+        if (Status != InvoiceStatus.Sent || DueDateUtc.Date >= todayUtc.Date)
+        {
+            return false;
+        }
+
+        Status = InvoiceStatus.Overdue;
+        return true;
+    }
 
     public void MarkAsPaid()
     {
