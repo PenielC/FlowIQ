@@ -4,6 +4,14 @@ import { useAuth } from '../../lib/AuthContext'
 import { fetchReminderSettings, runRemindersNow, saveReminderSettings } from '../../lib/invoicesApi'
 import type { ReminderSettingsResponse } from '../../lib/types'
 
+/** The server starts sending at 06:00 UTC (Reminders:WindowStartUtcHour); shown in the viewer's own time. */
+const REMINDER_START_UTC_HOUR = 6
+
+function reminderStartLocalTime() {
+  const start = new Date(Date.UTC(2026, 0, 15, REMINDER_START_UTC_HOUR, 0))
+  return start.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+}
+
 function parseDays(text: string): number[] | null {
   const parts = text.split(/[,\s]+/).filter(Boolean)
   const days = parts.map(Number)
@@ -140,7 +148,7 @@ export function InvoiceRemindersCard() {
         ) : (
           <p className="text-xs text-slate-500">Only an owner or admin can change this.</p>
         )}
-        <p className="text-xs text-slate-400">Reminders go out each morning (from 08:00 Harare time). Paid invoices are never chased.</p>
+        <p className="text-xs text-slate-400">Reminders go out each morning from {reminderStartLocalTime()} your time. Paid invoices are never chased.</p>
         {notice && (
           <p className={`text-sm ${notice.kind === 'ok' ? 'text-emerald-700' : 'text-red-600'}`} role="status">
             {notice.text}
