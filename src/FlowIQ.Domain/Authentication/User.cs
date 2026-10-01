@@ -15,6 +15,8 @@ public class User : BaseAuditableEntity, IAggregateRoot
         FirstName = firstName;
         LastName = lastName;
         Role = role;
+        // A new account has nothing "new" to catch up on; only later updates show as unread.
+        WhatsNewSeenAtUtc = DateTime.UtcNow;
     }
 
     public Guid CompanyId { get; private set; }
@@ -23,6 +25,11 @@ public class User : BaseAuditableEntity, IAggregateRoot
     public string FirstName { get; private set; } = string.Empty;
     public string LastName { get; private set; } = string.Empty;
     public UserRole Role { get; private set; }
+
+    /// <summary>When the user last opened "What's new". Updates published after this show as unread.</summary>
+    public DateTime? WhatsNewSeenAtUtc { get; private set; }
+
+    public void MarkWhatsNewSeen(DateTime nowUtc) => WhatsNewSeenAtUtc = nowUtc;
 
     public void ChangeRole(UserRole newRole) => Role = newRole;
 

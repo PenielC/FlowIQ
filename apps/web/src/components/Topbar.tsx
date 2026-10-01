@@ -1,6 +1,7 @@
-import { Bell, ChevronDown, LogOut, Menu, Search } from 'lucide-react'
+import { ChevronDown, LogOut, Menu, Search } from 'lucide-react'
 import { useState } from 'react'
 import { useAuth } from '../lib/AuthContext'
+import { WhatsNewButton } from './WhatsNewButton'
 
 export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   const { user, logout } = useAuth()
@@ -29,14 +30,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
       </label>
 
       <div className="flex shrink-0 items-center gap-3 sm:gap-5">
-        <button
-          type="button"
-          aria-label="Notifications"
-          className="relative text-slate-400 hover:text-slate-600"
-        >
-          <Bell size={20} />
-          <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-red-500" />
-        </button>
+        <WhatsNewButton />
 
         <div className="relative">
           <button type="button" className="flex items-center gap-2" onClick={() => setMenuOpen((v) => !v)}>

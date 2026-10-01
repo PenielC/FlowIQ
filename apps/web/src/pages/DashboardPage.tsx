@@ -11,6 +11,7 @@ import { AiCtaBanner } from './dashboard/AiCtaBanner'
 import { AiInsightsCard } from './dashboard/AiInsightsCard'
 import { DashboardHeader, getThisMonthRange, type DateRangeValue } from './dashboard/DashboardHeader'
 import { ForecastChart } from './dashboard/ForecastChart'
+import { FeatureCards } from './dashboard/FeatureCards'
 import { ForecastSetupPrompt } from './dashboard/ForecastSetupPrompt'
 import { RecentTransactionsCard } from './dashboard/RecentTransactionsCard'
 import { StatCard } from './dashboard/StatCard'
@@ -68,6 +69,8 @@ export function DashboardPage() {
       <DashboardHeader value={dateRange} onChange={handleDateRangeChange} />
 
       <ForecastSetupPrompt />
+
+      <FeatureCards />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard

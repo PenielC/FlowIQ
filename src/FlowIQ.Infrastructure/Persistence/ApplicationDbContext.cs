@@ -7,6 +7,7 @@ using FlowIQ.Domain.CompaniesAndTeams;
 using FlowIQ.Domain.Common;
 using FlowIQ.Domain.Customers;
 using FlowIQ.Domain.Invoicing;
+using FlowIQ.Domain.ProductUpdates;
 using FlowIQ.Domain.StripeSubscriptions;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,6 +22,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Transaction> Transactions => Set<Transaction>();
     public DbSet<Invoice> Invoices => Set<Invoice>();
     public DbSet<InvoiceEmail> InvoiceEmails => Set<InvoiceEmail>();
+    public DbSet<ProductUpdate> ProductUpdates => Set<ProductUpdate>();
+    public DbSet<ProductUpdateDismissal> ProductUpdateDismissals => Set<ProductUpdateDismissal>();
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<PlannedOwnerDraw> PlannedOwnerDraws => Set<PlannedOwnerDraw>();
     public DbSet<Invitation> Invitations => Set<Invitation>();

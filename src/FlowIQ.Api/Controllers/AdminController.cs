@@ -1,3 +1,6 @@
+using FlowIQ.Application.ProductUpdates;
+using FlowIQ.Contracts.ProductUpdates;
+using FlowIQ.Domain.ProductUpdates;
 using System.IdentityModel.Tokens.Jwt;
 using FlowIQ.Application.Admin.Commands.RepairCurrencyData;
 using FlowIQ.Application.Admin.Commands.SetCompanyActiveStatus;
@@ -93,6 +96,54 @@ public class AdminController(ISender sender, IPlatformAdminChecker platformAdmin
             r.TransactionsRestated,
             r.InvoicesRestated,
             r.IncomeRecorded)));
+    }
+
+    /// <summary>All "What's new" entries, drafts included.</summary>
+    [HttpGet("product-updates")]
+    public async Task<ActionResult<ApiResponse<IReadOnlyList<ProductUpdateResponse>>>> ListProductUpdates(CancellationToken cancellationToken)
+    {
+        if (EnsureAdmin() is { } forbid) return forbid;
+        var result = await sender.Send(new ListProductUpdatesQuery(), cancellationToken);
+        return Ok(ApiResponse<IReadOnlyList<ProductUpdateResponse>>.Ok(result.Select(WhatsNewController.ToResponse).ToList()));
+    }
+
+    /// <summary>Creates a draft entry; nobody sees it until it's published.</summary>
+    [HttpPost("product-updates")]
+    public Task<ActionResult<ApiResponse<ProductUpdateResponse>>> CreateProductUpdate(SaveProductUpdateRequest request, CancellationToken cancellationToken) =>
+        SaveProductUpdate(null, request, cancellationToken);
+
+    [HttpPut("product-updates/{id:guid}")]
+    public Task<ActionResult<ApiResponse<ProductUpdateResponse>>> UpdateProductUpdate(Guid id, SaveProductUpdateRequest request, CancellationToken cancellationToken) =>
+        SaveProductUpdate(id, request, cancellationToken);
+
+    [HttpPost("product-updates/{id:guid}/published")]
+    public async Task<ActionResult<ApiResponse<ProductUpdateResponse>>> SetProductUpdatePublished(Guid id, SetPublishedRequest request, CancellationToken cancellationToken)
+    {
+        if (EnsureAdmin() is { } forbid) return forbid;
+        var result = await sender.Send(new SetProductUpdatePublishedCommand(id, request.Published), cancellationToken);
+        return Ok(ApiResponse<ProductUpdateResponse>.Ok(WhatsNewController.ToResponse(result)));
+    }
+
+    [HttpDelete("product-updates/{id:guid}")]
+    public async Task<ActionResult<ApiResponse<object>>> DeleteProductUpdate(Guid id, CancellationToken cancellationToken)
+    {
+        if (EnsureAdmin() is { } forbid) return forbid;
+        await sender.Send(new DeleteProductUpdateCommand(id), cancellationToken);
+        return Ok(ApiResponse<object>.Ok(new { }));
+    }
+
+    private async Task<ActionResult<ApiResponse<ProductUpdateResponse>>> SaveProductUpdate(Guid? id, SaveProductUpdateRequest request, CancellationToken cancellationToken)
+    {
+        if (EnsureAdmin() is { } forbid) return forbid;
+        if (!Enum.TryParse<ProductUpdateAudience>(request.Audience, ignoreCase: true, out var audience) || !Enum.IsDefined(audience))
+        {
+            return BadRequest(ApiResponse<ProductUpdateResponse>.Fail("Audience must be Everyone or OwnersAndAdmins."));
+        }
+
+        var result = await sender.Send(
+            new SaveProductUpdateCommand(id, request.Title, request.Summary, request.LinkUrl, request.LinkLabel, audience, request.ShowOnDashboard),
+            cancellationToken);
+        return Ok(ApiResponse<ProductUpdateResponse>.Ok(WhatsNewController.ToResponse(result)));
     }
 
     private ActionResult? EnsureAdmin()

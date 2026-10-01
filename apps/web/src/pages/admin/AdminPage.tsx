@@ -7,6 +7,7 @@ import type { AdminCompanyRowResponse, AdminOverviewResponse } from '../../lib/t
 import { AdminGrowthChart } from './AdminGrowthChart'
 import { AdminReportPanel } from './AdminReportPanel'
 import { CurrencyRepairCard } from './CurrencyRepairCard'
+import { ProductUpdatesCard } from './ProductUpdatesCard'
 import { EditCompanyModal } from './EditCompanyModal'
 import { MonthSelector } from './MonthSelector'
 
@@ -97,6 +98,8 @@ export function AdminPage() {
       <AdminReportPanel overview={overview} isLoading={isLoading} />
 
       <AdminGrowthChart trend={overview?.monthlyTrend ?? []} isLoading={isLoading} />
+
+      <ProductUpdatesCard />
 
       <CurrencyRepairCard />
 
