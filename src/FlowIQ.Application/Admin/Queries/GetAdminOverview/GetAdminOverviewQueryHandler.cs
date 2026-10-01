@@ -1,3 +1,4 @@
+using FlowIQ.Application.Analytics;
 using FlowIQ.Application.Authentication;
 using FlowIQ.Application.Common.Interfaces;
 using FlowIQ.Application.StripeSubscriptions;
@@ -11,7 +12,8 @@ public class GetAdminOverviewQueryHandler(
     IRepository<Company> companyRepository,
     ISubscriptionRepository subscriptionRepository,
     IUserRepository userRepository,
-    IRefreshTokenRepository refreshTokenRepository) : IQueryHandler<GetAdminOverviewQuery, AdminOverviewResult>
+    IRefreshTokenRepository refreshTokenRepository,
+    IUsageStore usageStore) : IQueryHandler<GetAdminOverviewQuery, AdminOverviewResult>
 {
     private const string NoSubscriptionStatus = "NoSubscription";
     private const int MonthlyTrendMonths = 6;
@@ -22,6 +24,7 @@ public class GetAdminOverviewQueryHandler(
         var subscriptions = await subscriptionRepository.ListAsync(cancellationToken);
         var users = await userRepository.ListAsync(cancellationToken);
         var refreshTokens = await refreshTokenRepository.ListAsync(cancellationToken);
+        var lastActive = await usageStore.LastActiveByCompanyAsync(cancellationToken);
 
         var year = query.ReportYear ?? DateTime.UtcNow.Year;
         var month = query.ReportMonth ?? DateTime.UtcNow.Month;
@@ -50,7 +53,8 @@ public class GetAdminOverviewQueryHandler(
                     owner?.Email,
                     subscription is null ? NoSubscriptionStatus : subscription.Status.ToString(),
                     subscription?.PlanKey,
-                    company.IsActive);
+                    company.IsActive,
+                    lastActive.TryGetValue(company.Id, out var at) ? at : null);
             })
             .ToList();
 

@@ -35,4 +35,5 @@ public record AdminCompanyRow(
     string? OwnerEmail,
     string SubscriptionStatus,
     string? PlanKey,
-    bool IsActive);
+    bool IsActive,
+    DateTime? LastActiveAtUtc = null);

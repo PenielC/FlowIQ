@@ -1,3 +1,4 @@
+using FlowIQ.Api.Analytics;
 using FlowIQ.Application.BankTransactions;
 using FlowIQ.Application.BankTransactions.Commands.CreateTransaction;
 using FlowIQ.Application.BankTransactions.Queries.GetDashboardSummary;
@@ -66,6 +67,7 @@ public class TransactionsController(ISender sender) : ControllerBase
     }
 
     [HttpPost]
+    [TrackUsage("transaction.added")]
     public async Task<ActionResult<ApiResponse<TransactionResponse>>> Create(CreateTransactionRequest request, CancellationToken cancellationToken)
     {
         if (!Enum.TryParse<TransactionCategory>(request.Category, ignoreCase: true, out var category))
@@ -114,6 +116,7 @@ public class TransactionsController(ISender sender) : ControllerBase
     }
 
     [HttpPost("import/confirm")]
+    [TrackUsage("statement.imported")]
     public async Task<ActionResult<ApiResponse<ImportTransactionsResponse>>> ConfirmImport(
         ConfirmTransactionImportRequest request, CancellationToken cancellationToken)
     {

@@ -1,3 +1,5 @@
+using FlowIQ.Infrastructure.Analytics;
+using FlowIQ.Application.Analytics;
 using System.Net.Http.Headers;
 using FlowIQ.Application.Authentication;
 using FlowIQ.Application.BankTransactions;
@@ -49,6 +51,7 @@ public static class DependencyInjection
         services.AddScoped<IInvoiceEmailRepository, InvoiceEmailRepository>();
         services.AddScoped<IInvoiceReminderStore, InvoiceReminderStore>();
         services.AddScoped<IProductUpdateRepository, ProductUpdateRepository>();
+        services.AddScoped<IUsageStore, UsageStore>();
         services.TryAddSingleton(TimeProvider.System);
         services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();

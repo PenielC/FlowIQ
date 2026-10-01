@@ -1,3 +1,4 @@
+using FlowIQ.Domain.Analytics;
 using System.Reflection;
 using FlowIQ.Application.Common.Interfaces;
 using FlowIQ.Domain.Authentication;
@@ -23,6 +24,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Invoice> Invoices => Set<Invoice>();
     public DbSet<InvoiceEmail> InvoiceEmails => Set<InvoiceEmail>();
     public DbSet<ProductUpdate> ProductUpdates => Set<ProductUpdate>();
+    public DbSet<UsageDay> UsageDays => Set<UsageDay>();
     public DbSet<ProductUpdateDismissal> ProductUpdateDismissals => Set<ProductUpdateDismissal>();
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<PlannedOwnerDraw> PlannedOwnerDraws => Set<PlannedOwnerDraw>();

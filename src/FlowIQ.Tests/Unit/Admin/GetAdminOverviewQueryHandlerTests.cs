@@ -1,3 +1,4 @@
+using FlowIQ.Application.Analytics;
 using AwesomeAssertions;
 using FlowIQ.Application.Admin.Queries.GetAdminOverview;
 using FlowIQ.Application.Authentication;
@@ -17,17 +18,20 @@ public class GetAdminOverviewQueryHandlerTests
     private readonly Mock<ISubscriptionRepository> _subscriptionRepository = new();
     private readonly Mock<IUserRepository> _userRepository = new();
     private readonly Mock<IRefreshTokenRepository> _refreshTokenRepository = new();
+    private readonly Mock<IUsageStore> _usageStore = new();
 
     public GetAdminOverviewQueryHandlerTests()
     {
         _refreshTokenRepository.Setup(r => r.ListAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        _usageStore.Setup(s => s.LastActiveByCompanyAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
     }
 
     private GetAdminOverviewQueryHandler CreateHandler() => new(
         _companyRepository.Object,
         _subscriptionRepository.Object,
         _userRepository.Object,
-        _refreshTokenRepository.Object);
+        _refreshTokenRepository.Object,
+        _usageStore.Object);
 
     [Fact]
     public async Task Handle_BucketsCompaniesWithNoSubscriptionRow_AsNoSubscription()

@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Pencil, Power } from 'lucide-react'
+import { Activity, ChevronLeft, ChevronRight, Pencil, Power } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { activateCompany, deactivateCompany, fetchAdminOverview } from '../../lib/adminApi'
 import { formatDate } from '../../lib/categoryDisplay'
@@ -8,6 +8,9 @@ import { AdminGrowthChart } from './AdminGrowthChart'
 import { AdminReportPanel } from './AdminReportPanel'
 import { CurrencyRepairCard } from './CurrencyRepairCard'
 import { ProductUpdatesCard } from './ProductUpdatesCard'
+import { CompanyUsageModal } from './CompanyUsageModal'
+import { UsageCard } from './UsageCard'
+import { sinceText } from '../../lib/usageApi'
 import { EditCompanyModal } from './EditCompanyModal'
 import { MonthSelector } from './MonthSelector'
 
@@ -28,6 +31,7 @@ export function AdminPage() {
   const [overview, setOverview] = useState<AdminOverviewResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [editingCompany, setEditingCompany] = useState<AdminCompanyRowResponse | null>(null)
+  const [usageCompany, setUsageCompany] = useState<AdminCompanyRowResponse | null>(null)
   const [togglingId, setTogglingId] = useState<string | null>(null)
 
   useEffect(() => {
@@ -99,6 +103,8 @@ export function AdminPage() {
 
       <AdminGrowthChart trend={overview?.monthlyTrend ?? []} isLoading={isLoading} />
 
+      <UsageCard />
+
       <ProductUpdatesCard />
 
       <CurrencyRepairCard />
@@ -129,19 +135,20 @@ export function AdminPage() {
               <th className="px-5 py-3 font-medium">Subscription</th>
               <th className="px-5 py-3 font-medium">Plan</th>
               <th className="px-5 py-3 font-medium">Account</th>
+              <th className="px-5 py-3 font-medium">Last active</th>
               <th className="px-5 py-3 font-medium"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {isLoading ? (
               <tr>
-                <td colSpan={7} className="px-5 py-8 text-center text-slate-400">
+                <td colSpan={8} className="px-5 py-8 text-center text-slate-400">
                   Loading…
                 </td>
               </tr>
             ) : !companies || companies.items.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-5 py-8 text-center text-slate-400">
+                <td colSpan={8} className="px-5 py-8 text-center text-slate-400">
                   No companies match this filter.
                 </td>
               </tr>
@@ -177,8 +184,17 @@ export function AdminPage() {
                       {company.isActive ? 'Active' : 'Deactivated'}
                     </span>
                   </td>
+                  <td className="px-5 py-3 text-slate-500">{sinceText(company.lastActiveAtUtc)}</td>
                   <td className="px-5 py-3">
                     <div className="flex items-center justify-end gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setUsageCompany(company)}
+                        className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-700 hover:underline"
+                      >
+                        <Activity size={14} />
+                        Usage
+                      </button>
                       <button
                         type="button"
                         onClick={() => setEditingCompany(company)}
@@ -236,6 +252,7 @@ export function AdminPage() {
       {editingCompany && (
         <EditCompanyModal company={editingCompany} onClose={() => setEditingCompany(null)} onSaved={handleSaved} />
       )}
+      {usageCompany && <CompanyUsageModal company={usageCompany} onClose={() => setUsageCompany(null)} />}
     </div>
   )
 }

@@ -1,3 +1,4 @@
+using FlowIQ.Application.Analytics;
 using FlowIQ.Application.ProductUpdates;
 using FlowIQ.Contracts.ProductUpdates;
 using FlowIQ.Domain.ProductUpdates;
@@ -146,6 +147,22 @@ public class AdminController(ISender sender, IPlatformAdminChecker platformAdmin
         return Ok(ApiResponse<ProductUpdateResponse>.Ok(WhatsNewController.ToResponse(result)));
     }
 
+    /// <summary>Which parts of FinFlow businesses use: page visits and key actions, plus feature take-up.</summary>
+    [HttpGet("usage")]
+    public async Task<ActionResult<ApiResponse<UsageOverviewResult>>> Usage(CancellationToken cancellationToken)
+    {
+        if (EnsureAdmin() is { } forbid) return forbid;
+        return Ok(ApiResponse<UsageOverviewResult>.Ok(await sender.Send(new GetUsageOverviewQuery(), cancellationToken)));
+    }
+
+    /// <summary>One business's use of each part of FinFlow: last used, and how much in the last 30 days.</summary>
+    [HttpGet("companies/{id:guid}/usage")]
+    public async Task<ActionResult<ApiResponse<CompanyUsageResult>>> CompanyUsage(Guid id, CancellationToken cancellationToken)
+    {
+        if (EnsureAdmin() is { } forbid) return forbid;
+        return Ok(ApiResponse<CompanyUsageResult>.Ok(await sender.Send(new GetCompanyUsageQuery(id), cancellationToken)));
+    }
+
     private ActionResult? EnsureAdmin()
     {
         var email = User.FindFirst(JwtRegisteredClaimNames.Email)!.Value;
@@ -153,5 +170,6 @@ public class AdminController(ISender sender, IPlatformAdminChecker platformAdmin
     }
 
     private static AdminCompanyRowResponse ToResponse(AdminCompanyRow row) => new(
-        row.Id, row.Name, row.Currency, row.CreatedAtUtc, row.OwnerName, row.OwnerEmail, row.SubscriptionStatus, row.PlanKey, row.IsActive);
+        row.Id, row.Name, row.Currency, row.CreatedAtUtc, row.OwnerName, row.OwnerEmail, row.SubscriptionStatus, row.PlanKey, row.IsActive,
+        row.LastActiveAtUtc);
 }

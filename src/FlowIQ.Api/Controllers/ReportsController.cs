@@ -1,3 +1,4 @@
+using FlowIQ.Api.Analytics;
 using System.Globalization;
 using System.Text;
 using FlowIQ.Application.ReportsAndAnalytics.Queries.GetReportsSummary;
@@ -30,6 +31,7 @@ public class ReportsController(ISender sender) : ControllerBase
     }
 
     [HttpGet("export/transactions")]
+    [TrackUsage("report.exported")]
     public async Task<IActionResult> ExportTransactions(
         [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate, CancellationToken cancellationToken = default)
     {

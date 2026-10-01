@@ -1,3 +1,4 @@
+using FlowIQ.Api.Analytics;
 using FlowIQ.Application.Invoicing;
 using FlowIQ.Application.Invoicing.Commands.CreateInvoice;
 using FlowIQ.Application.Invoicing.Emails;
@@ -57,6 +58,7 @@ public class InvoicesController(ISender sender) : ControllerBase
     }
 
     [HttpPost]
+    [TrackUsage("invoice.created")]
     public async Task<ActionResult<ApiResponse<InvoiceResponse>>> Create(CreateInvoiceRequest request, CancellationToken cancellationToken)
     {
         var command = new CreateInvoiceCommand(
@@ -79,6 +81,7 @@ public class InvoicesController(ISender sender) : ControllerBase
 
     /// <summary>Emails the invoice to the customer, with a link to view and download it.</summary>
     [HttpPost("{id:guid}/send")]
+    [TrackUsage("invoice.emailed")]
     public async Task<ActionResult<ApiResponse<InvoiceEmailResponse>>> Send(Guid id, SendInvoiceEmailRequest request, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new SendInvoiceEmailCommand(CurrentCompanyId, CurrentUserId, id, request.ToEmail, request.Message), cancellationToken);

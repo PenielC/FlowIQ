@@ -20,6 +20,8 @@ export interface AdminCompanyRowResponse {
   subscriptionStatus: string
   planKey: string | null
   isActive: boolean
+  /** Last time anyone in the business used FinFlow; null if never since tracking began. */
+  lastActiveAtUtc: string | null
 }
 
 export interface AdminMonthlyTrendPointResponse {
