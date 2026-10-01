@@ -2,6 +2,7 @@ using FlowIQ.Domain.Analytics;
 using System.Reflection;
 using FlowIQ.Application.Common.Interfaces;
 using FlowIQ.Domain.Authentication;
+using FlowIQ.Domain.Blog;
 using FlowIQ.Domain.BankTransactions;
 using FlowIQ.Domain.CashFlowForecasting;
 using FlowIQ.Domain.CompaniesAndTeams;
@@ -31,6 +32,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Invitation> Invitations => Set<Invitation>();
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
     public DbSet<ProcessedWebhookEvent> ProcessedWebhookEvents => Set<ProcessedWebhookEvent>();
+    public DbSet<BlogPost> BlogPosts => Set<BlogPost>();
+    public DbSet<BlogImage> BlogImages => Set<BlogImage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

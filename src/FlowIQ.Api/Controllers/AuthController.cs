@@ -24,7 +24,7 @@ public class AuthController(ISender sender) : ControllerBase
     {
         var result = await sender.Send(
             new RegisterCommand(
-                request.CompanyName, request.FirstName, request.LastName, request.Email, request.Password, ClientPlatform.Read(Request)),
+                request.CompanyName, request.FirstName, request.LastName, request.Email, request.Password, ClientPlatform.Read(Request), request.Source),
             cancellationToken);
 
         return Ok(ApiResponse<AuthResponse>.Ok(ToResponse(result)));

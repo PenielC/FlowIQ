@@ -23,6 +23,8 @@ interface RegisterInput {
   lastName: string
   email: string
   password: string
+  /** Where the visitor came from, e.g. "blog:owner-drawings". */
+  source?: string
 }
 
 interface AcceptInvitationInput {

@@ -1,13 +1,15 @@
 import { Building2, Mail, User } from 'lucide-react'
-import { useState, type FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState, type FormEvent } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { PasswordInput } from '../../components/PasswordInput'
 import { useAuth } from '../../lib/AuthContext'
+import { captureSignupSource, clearSignupSource, readSignupSource } from '../../lib/signupSource'
 import { AuthLayout } from './AuthLayout'
 
 export function RegisterPage() {
   const { register } = useAuth()
   const navigate = useNavigate()
+  const { search } = useLocation()
   const [companyName, setCompanyName] = useState('')
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
@@ -16,12 +18,16 @@ export function RegisterPage() {
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // Arriving from a blog post (?ref=blog:...) credits the sign-up to it.
+  useEffect(() => captureSignupSource(search), [search])
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError(null)
     setIsSubmitting(true)
     try {
-      await register({ companyName, firstName, lastName, email, password })
+      await register({ companyName, firstName, lastName, email, password, source: readSignupSource() })
+      clearSignupSource()
       // One quick question about personal withdrawals, so the first forecast they see is a believable one.
       navigate('/setup/forecast')
     } catch (err) {

@@ -38,7 +38,10 @@ export function LandingCtaFooter() {
       </Reveal>
 
       <div className="relative border-t border-white/10 px-6 py-6 text-center text-xs text-slate-500">
-        © {new Date().getFullYear()} FinFlow. All rights reserved.
+        © {new Date().getFullYear()} FinFlow. All rights reserved. ·{' '}
+        <a href="/blog" className="text-slate-400 hover:text-white">
+          Blog
+        </a>
       </div>
     </footer>
   )

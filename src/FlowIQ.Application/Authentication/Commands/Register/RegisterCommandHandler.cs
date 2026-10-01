@@ -24,6 +24,7 @@ public class RegisterCommandHandler(
         }
 
         var company = new Company(command.CompanyName);
+        company.RecordSignupSource(command.Source);
         await companyRepository.AddAsync(company, cancellationToken);
 
         var passwordHash = passwordHasher.Hash(command.Password);

@@ -10,6 +10,7 @@ using FlowIQ.Application.Customers;
 using FlowIQ.Application.Invoicing;
 using FlowIQ.Application.Invoicing.Emails;
 using FlowIQ.Application.ProductUpdates;
+using FlowIQ.Application.Blog;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using FlowIQ.Application.StripeSubscriptions;
 using FlowIQ.Infrastructure.Authentication;
@@ -52,6 +53,7 @@ public static class DependencyInjection
         services.AddScoped<IInvoiceReminderStore, InvoiceReminderStore>();
         services.AddScoped<IProductUpdateRepository, ProductUpdateRepository>();
         services.AddScoped<IUsageStore, UsageStore>();
+        services.AddScoped<IBlogRepository, BlogRepository>();
         services.TryAddSingleton(TimeProvider.System);
         services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();

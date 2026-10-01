@@ -8,4 +8,5 @@ public record RegisterCommand(
     string LastName,
     string Email,
     string Password,
-    string? Platform = null) : ICommand<AuthResult>;
+    string? Platform = null,
+    string? Source = null) : ICommand<AuthResult>;

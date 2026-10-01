@@ -17,6 +17,11 @@ export function LandingNav() {
             Features
             <span className="h-0.5 w-4 rounded-full bg-transparent" />
           </a>
+          {/* A full page load: the blog is served as plain HTML pages, not part of the app. */}
+          <a href="/blog" className="flex flex-col items-center gap-1.5 text-sm font-medium text-slate-300 transition-colors hover:text-white">
+            Blog
+            <span className="h-0.5 w-4 rounded-full bg-transparent" />
+          </a>
         </nav>
 
         <div className="flex items-center gap-3">

@@ -6,6 +6,7 @@ import { subscriptionStatusColor, subscriptionStatusLabel } from '../../lib/subs
 import type { AdminCompanyRowResponse, AdminOverviewResponse } from '../../lib/types'
 import { AdminGrowthChart } from './AdminGrowthChart'
 import { AdminReportPanel } from './AdminReportPanel'
+import { BlogCard } from './BlogCard'
 import { CurrencyRepairCard } from './CurrencyRepairCard'
 import { ProductUpdatesCard } from './ProductUpdatesCard'
 import { CompanyUsageModal } from './CompanyUsageModal'
@@ -106,6 +107,8 @@ export function AdminPage() {
       <UsageCard />
 
       <ProductUpdatesCard />
+
+      <BlogCard />
 
       <CurrencyRepairCard />
 
