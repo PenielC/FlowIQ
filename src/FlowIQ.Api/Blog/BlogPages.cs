@@ -120,7 +120,7 @@ public class BlogPages(string siteUrl)
             """);
         if (cover is not null)
         {
-            body.Append($"""<figure class="cover wrap"><img src="{cover}" alt="{E(p.CoverImageAlt ?? "")}" width="1200" height="630"></figure>""");
+            body.Append($"""<figure class="cover wrap narrow"><img src="{cover}" alt="{E(p.CoverImageAlt ?? "")}" width="1200" height="630"></figure>""");
         }
 
         body.Append($$"""
@@ -416,7 +416,7 @@ public class BlogPages(string siteUrl)
         .prose h3{font-size:21px;color:var(--ink);margin:30px 0 8px}
         .prose p,.prose ul,.prose ol{margin:0 0 20px}
         .prose li{margin:6px 0}
-        .prose img{border-radius:12px;margin:8px 0}
+        .prose img{display:block;width:100%;border-radius:12px;margin:8px 0}
         .prose blockquote{margin:24px 0;padding:4px 20px;border-left:4px solid var(--green);background:#ecfdf5;border-radius:0 12px 12px 0;color:#065f46}
         .prose code{background:#f1f5f9;padding:2px 6px;border-radius:6px;font-size:.88em}
         .prose pre{background:var(--navy);color:#e2e8f0;padding:16px;border-radius:12px;overflow-x:auto}
