@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://flowiqfinance.com/sitemap.xml
+Sitemap: https://www.flowiqfinance.com/sitemap.xml
